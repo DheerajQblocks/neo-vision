@@ -10,7 +10,7 @@ import {
 import { getPrewrittenConversations } from "./GetPrewrittenConversations";
 import "./NewNEO.css";
 import AudioPlayer from "./AudioPlayer";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from 'react-hot-toast';
 
 const formatTextWithClickableElements = (text, onActionClick) => {
   const lines = text.split("\n");
@@ -54,6 +54,20 @@ const formatTextWithClickableElements = (text, onActionClick) => {
       </React.Fragment>
     );
   });
+};
+
+const customToastStyle = {
+  style: {
+    background: '#181729',
+    color: '#fff',
+    border: '1px solid #4334E6',
+    padding: '16px',
+    borderRadius: '8px',
+  },
+  iconTheme: {
+    primary: '#4334E6',
+    secondary: '#fff',
+  },
 };
 
 const ChatMessage = ({ content, isUser, onActionClick }) => {
@@ -149,7 +163,25 @@ const ThinkingIndicator = () => (
   </div>
 );
 
+export const showCustomToast = (message, type = 'success', duration) => {
+ switch (type) {
+   case 'success':
+     toast.success(message, customToastStyle, {
+      duration: duration
+     });
+     break;
+   case 'error':
+     toast.error(message, customToastStyle);
+     break;
+   default:
+     toast(message, customToastStyle);
+ }
+};
 const NewNEO = () => {
+
+
+
+
   const [activeTab, setActiveTab] = useState("Browse");
   const [inputValue, setInputValue] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
@@ -429,7 +461,13 @@ const NewNEO = () => {
 
   return (
     <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
-      <Toaster />
+       <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: customToastStyle.style,
+        }}
+      />
       <nav className="bg-[#1A162F] p-1 flex items-center justify-between">
         <div className="flex items-center ms-4">
           <img

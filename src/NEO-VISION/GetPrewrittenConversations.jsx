@@ -7,6 +7,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "./NewNEO.css";
 import { toast } from "react-hot-toast";
+import { showCustomToast } from "./NewNEO";
 
 // eslint-disable-next-line react/prop-types
 const CodeTab = ({ code, language = "python", onComplete }) => {
@@ -277,13 +278,7 @@ You can take the following actions:
         />
       );
       setTimeout(() => {
-        toast.success(
-          "P95 latency increased by 65% due to endpoint overload. Scaling up by 2 nodes to reduce latency.",
-          {
-            duration: 3000,
-            position: "top-center",
-          }
-        );
+        showCustomToast('P95 latency increased by 65% due to endpoint overload. Scaling up by 2 nodes to reduce latency.', 'sucess', 5000)
         onComplete();
       }, 3000);
     },
