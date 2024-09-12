@@ -6,6 +6,7 @@ import { FaCopy } from 'react-icons/fa6';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import './NewNEO.css';
+import { toast } from 'react-hot-toast';
 
 // eslint-disable-next-line react/prop-types
 const CodeTab = ({ code, language = 'python', onComplete }) => {
@@ -244,20 +245,45 @@ Should I proceed?`,
 https://2a4e9fc5-eed1-429c-af91-cb2535517b34.monsterapi.ai/docs
 
 You can take the following actions:
-[action]Try out the deployment Service[/action]
-[action]Performance Monitoring dashboard[/action]
-[action]Create a service alarm[/action]
-[action]Create a autonomous action[/action]
+[action]Try deployment[/action]
+[action]Monitor Performance[/action]
   `,
   },
 
   {
-    input: 'Try out the deployment Service',
+    input: 'Try deployment',
     output: 'Please give me a audio sample',
   },
 
+ 
+
   {
-    input: 'How can i test my deployed model?',
+    input: 'Monitor Performance',
+    output: `Sure, here it is.`,
+    action: (onComplete) => {
+      setActiveTab('Monitor');
+      setTabContent(
+        <MonitorTab
+          images={[
+            '/images/neo-vision/monitor/monitor1.svg',
+            '/images/neo-vision/monitor/monitor2.svg',
+          ]}
+          imagesPerRow={1}
+        />
+      );
+      setTimeout(() => {
+        toast.success('P95 latency increased by 65% due to endpoint overload. Scaling up by 2 nodes to reduce latency.', {
+          duration: 3000,
+          position: 'top-center',
+        });
+        onComplete();
+      }, 3000);
+    },
+  },
+
+
+  {
+    input: 'How can i test my deployed model locally?',
     output: 'Here is the code to test your deployed model',
     action: (onComplete) => {
       setActiveTab('Code');
@@ -356,22 +382,4 @@ if __name__ == "__main__":
     },
     followUp: "Keep your API key secret and don't share it with anyone.",
   },
-
-  // {
-  //   input: 'Tell me a joke',
-  //   output:
-  //     "Sure, I'd be happy to tell you a joke. Please listen to the audio response.",
-  //   action: (onComplete) => {
-  //     setActiveTab('Chat');
-  //     setTabContent(
-  //       <AudioPlayer
-  //         audioSrc="/images/neo-vision/audio.mp3"
-  //       // onEnded={onComplete}
-  //       />
-  //     );
-  //     setTimeout(onComplete, 500);
-  //   },
-  //   followUp:
-  //     "I hope you enjoyed that joke! Let me know if you'd like to hear another one.",
-  // },
 ];

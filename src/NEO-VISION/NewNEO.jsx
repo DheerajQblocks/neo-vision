@@ -16,6 +16,7 @@ import {
 import { getPrewrittenConversations } from './GetPrewrittenConversations';
 import './NewNEO.css';
 import AudioPlayer from './AudioPlayer';
+import { Toaster } from 'react-hot-toast';
 
 const formatTextWithClickableElements = (text, onActionClick) => {
   const lines = text.split('\n');
@@ -317,6 +318,7 @@ const NewNEO = () => {
 
   return (
     <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
+         <Toaster />
       <nav className="bg-[#1A162F] p-1 flex items-center justify-between">
         <div className="flex items-center ms-4">
           <img
@@ -324,10 +326,10 @@ const NewNEO = () => {
             alt="Neo Logo"
             className="w-12 h-12"
           />
-          <span className="font-semibold">Neo</span>
+          <span className="font-semibold uppercase">Neo</span>
         </div>
         <div className="flex space-x-2">
-          <img src="/images/neo-vision/btn-navbar.png" alt="Neo Logo" />
+          <img src="/images/neo-vision/btn-navbar.svg" alt="Neo Logo" />
           {/* <button className="p-2 rounded-lg bg-[#2d2d44]">
             <Layers size={16} />
           </button>
