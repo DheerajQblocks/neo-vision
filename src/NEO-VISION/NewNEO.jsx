@@ -12,49 +12,7 @@ import "./NewNEO.css";
 import AudioPlayer from "./AudioPlayer";
 import { Toaster, toast } from 'react-hot-toast';
 
-const formatTextWithClickableElements = (text, onActionClick) => {
-  const lines = text.split("\n");
 
-  return lines.map((line, lineIndex) => {
-    const parts = line.split(/(\[action\].*?\[\/action\]|\bhttps?:\/\/\S+)/gi);
-
-    const formattedLine = parts.map((part, partIndex) => {
-      if (part.startsWith("[action]") && part.endsWith("[/action]")) {
-        const action = part.slice(8, -9); // Remove [action] and [/action] tags
-        return (
-          <span
-            key={`${lineIndex}-${partIndex}`}
-            className="cursor-pointer text-green-500 hover:underline"
-            onClick={() => onActionClick(action)}
-          >
-            {action}
-          </span>
-        );
-      } else if (part.startsWith("http://") || part.startsWith("https://")) {
-        return (
-          <a
-            key={`${lineIndex}-${partIndex}`}
-            href={part}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
-            {part}
-          </a>
-        );
-      } else {
-        return part;
-      }
-    });
-
-    return (
-      <React.Fragment key={lineIndex}>
-        {formattedLine}
-        {lineIndex < lines.length - 1 && <br />}
-      </React.Fragment>
-    );
-  });
-};
 
 const customToastStyle = {
   style: {
