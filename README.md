@@ -11,12 +11,12 @@ A React frontend built with Vite for fast development.
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/your-project-name.git
+   git clone https://github.com/DheerajQblocks/neo-vision
    ```
 
 2. Navigate to the project directory:
    ```
-   cd your-project-name
+   cd neo-vision
    ```
 
 3. Install dependencies:
