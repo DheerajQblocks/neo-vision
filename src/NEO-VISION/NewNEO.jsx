@@ -1,31 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Send,
   Mic,
-  Layout,
-  MonitorDot,
-  Globe,
+  Code,
   Monitor,
   ChartNoAxesCombined,
-  Code,
-  Layers,
-  Grid,
-  Sun,
   Square,
-} from 'lucide-react';
-import { getPrewrittenConversations } from './GetPrewrittenConversations';
-import './NewNEO.css';
-import AudioPlayer from './AudioPlayer';
-import { Toaster } from 'react-hot-toast';
+} from "lucide-react";
+import { getPrewrittenConversations } from "./GetPrewrittenConversations";
+import "./NewNEO.css";
+import AudioPlayer from "./AudioPlayer";
+import { Toaster } from "react-hot-toast";
 
 const formatTextWithClickableElements = (text, onActionClick) => {
-  const lines = text.split('\n');
+  const lines = text.split("\n");
 
   return lines.map((line, lineIndex) => {
     const parts = line.split(/(\[action\].*?\[\/action\]|\bhttps?:\/\/\S+)/gi);
 
     const formattedLine = parts.map((part, partIndex) => {
-      if (part.startsWith('[action]') && part.endsWith('[/action]')) {
+      if (part.startsWith("[action]") && part.endsWith("[/action]")) {
         const action = part.slice(8, -9); // Remove [action] and [/action] tags
         return (
           <span
@@ -36,7 +30,7 @@ const formatTextWithClickableElements = (text, onActionClick) => {
             {action}
           </span>
         );
-      } else if (part.startsWith('http://') || part.startsWith('https://')) {
+      } else if (part.startsWith("http://") || part.startsWith("https://")) {
         return (
           <a
             key={`${lineIndex}-${partIndex}`}
@@ -66,10 +60,11 @@ const ChatMessage = ({ content, isUser, onActionClick }) => {
   const renderActions = (actions) => {
     return (
       <div className="mt-4 flex flex-col items-center w-full">
-        <div 
+        <div
           className="text-purple-300 px-4 py-2 rounded-full inline-block mb-2 w-full mt-2 text-center"
           style={{
-            background: 'linear-gradient(90.04deg, #412F9F 0.03%, rgba(24, 23, 41, 0) 90.72%)'
+            background:
+              "linear-gradient(90.04deg, #412F9F 0.03%, rgba(24, 23, 41, 0) 90.72%)",
           }}
         >
           <span className="mr-2 text-xl text-center">✦</span>
@@ -77,16 +72,16 @@ const ChatMessage = ({ content, isUser, onActionClick }) => {
         </div>
         <div className="flex flex-wrap gap-2 justify-center">
           {actions.map((action, index) => {
-            const actionText = action.replace(/^\[action\]|\[\/action\]$/g, '');
+            const actionText = action.replace(/^\[action\]|\[\/action\]$/g, "");
             return (
               <button
                 key={index}
                 onClick={() => onActionClick(actionText)}
                 className="text-purple-300 px-4 py-2 rounded-md transition-colors"
                 style={{
-                  background: '#4334E630',
-                  border: '0.4px solid #FFFFFF1A',
-                  boxShadow: '0px 4px 12px 0px #00000014'
+                  background: "#4334E630",
+                  border: "0.4px solid #FFFFFF1A",
+                  boxShadow: "0px 4px 12px 0px #00000014",
                 }}
               >
                 {actionText}
@@ -99,10 +94,12 @@ const ChatMessage = ({ content, isUser, onActionClick }) => {
   };
 
   const renderContent = () => {
-    if (typeof content === 'string') {
+    if (typeof content === "string") {
       const parts = content.split(/(\[action\].*?\[\/action\])/g);
       const message = parts[0].trim();
-      const actions = parts.slice(1).filter(part => part.startsWith('[action]'));
+      const actions = parts
+        .slice(1)
+        .filter((part) => part.startsWith("[action]"));
 
       return (
         <>
@@ -115,8 +112,12 @@ const ChatMessage = ({ content, isUser, onActionClick }) => {
   };
 
   return (
-    <div className={`mb-4 ${isUser ? 'text-right' : 'text-left'}`}>
-      <div className={`inline-block p-4 rounded-lg ${isUser ? 'bg-[#2d2d44]' : 'bg-[#181729]'} max-w-[80%]`}>
+    <div className={`mb-4 ${isUser ? "text-right" : "text-left"}`}>
+      <div
+        className={`inline-block p-4 rounded-lg ${
+          isUser ? "bg-[#2d2d44]" : "bg-[#181729]"
+        } max-w-[80%]`}
+      >
         {content ? renderContent() : null}
       </div>
     </div>
@@ -149,25 +150,21 @@ const ThinkingIndicator = () => (
 );
 
 const NewNEO = () => {
-
-  const [activeTab, setActiveTab] = useState('Browse');
-  const [inputValue, setInputValue] = useState('');
+  const [activeTab, setActiveTab] = useState("Browse");
+  const [inputValue, setInputValue] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [tabContent, setTabContent] = useState(null);
   const chatEndRef = useRef(null);
-  const [chatWidth, setChatWidth] = useState(60); // Default chat width percentage
+  const [chatWidth, setChatWidth] = useState(60);
   const resizeRef = useRef(null);
-
   const [prewrittenConversation, setPrewrittenConversation] = useState([]);
   const [isTypingComplete, setIsTypingComplete] = useState(true);
   const inputRef = useRef(null);
-
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
   const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
@@ -184,7 +181,7 @@ const NewNEO = () => {
   }, [chatHistory]);
 
   const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(scrollToBottom, [chatHistory]);
@@ -196,7 +193,7 @@ const NewNEO = () => {
   }, [isTypingComplete, isTyping]);
 
   const formatTextWithLineBreaks = (text) => {
-    return text.split('\n').map((line, index) => (
+    return text.split("\n").map((line, index) => (
       <React.Fragment key={index}>
         {line}
         <br />
@@ -204,73 +201,81 @@ const NewNEO = () => {
     ));
   };
 
-  const simulateTyping = (text, callback) => {
-    console.log('Starting to type:', text);
+  const simulateTyping = async (text, callback) => {
+    console.log("Starting to type:", text);
     setIsTyping(true);
     setIsTypingComplete(false);
-    let i = 0;
-    setChatHistory((prev) => {
-      console.log('Adding new message to chat history');
-      return [...prev, { content: '', isUser: false }];
-    });
-    const typingInterval = setInterval(() => {
-      if (i < text.length) {
-        setChatHistory((prev) => {
-          const newHistory = [...prev];
-          newHistory[newHistory.length - 1].content = text.substring(0, i + 1);
-          return newHistory;
-        });
-        i++;
-      } else {
-        console.log('Finished typing');
-        clearInterval(typingInterval);
-        setIsTyping(false);
-        setIsTypingComplete(true);
-        if (callback) setTimeout(callback, 500); // Small delay before callback
-      }
-    }, 5);
+    setChatHistory((prev) => [...prev, { content: "", isUser: false }]);
+
+    for (let i = 0; i <= text.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 5)); // 5ms delay between characters
+      setChatHistory((prev) => {
+        const newHistory = [...prev];
+        newHistory[newHistory.length - 1].content = text.substring(0, i);
+        return newHistory;
+      });
+    }
+
+    console.log("Finished typing");
+    setIsTyping(false);
+    setIsTypingComplete(true);
+    if (callback) setTimeout(callback, 500);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (inputValue.trim() === '' || isTyping) return;
+    if (inputValue.trim() === "" || isTyping) return;
 
-    console.log('User input:', inputValue);
-
-    // Add user input to chat history
+    console.log("User input:", inputValue);
     setChatHistory((prev) => [...prev, { content: inputValue, isUser: true }]);
-    setInputValue('');
+    setInputValue("");
 
-    // Find the matching conversation
     const currentConversation = prewrittenConversation.find(
       (conv) => conv.input.toLowerCase() === inputValue.toLowerCase()
     );
 
-    console.log('Matched conversation:', currentConversation);
+    console.log("Matched conversation:", currentConversation);
 
     if (currentConversation) {
-      console.log('Displaying output:', currentConversation.output);
-      // Display output
-      simulateTyping(currentConversation.output, () => {
-        if (currentConversation.action) {
-          console.log('Starting action');
+      // Output
+      if (currentConversation.outputDelay) {
+        setIsThinking(true);
+        await new Promise((resolve) =>
+          setTimeout(resolve, currentConversation.outputDelay)
+        );
+        setIsThinking(false);
+      }
+      await simulateTyping(currentConversation.output);
+
+      // Action
+      if (currentConversation.action) {
+        if (currentConversation.actionDelay) {
           setIsThinking(true);
-          currentConversation.action(() => {
-            console.log('Action completed');
-            setIsThinking(false);
-            if (currentConversation.followUp) {
-              console.log('Displaying followUp:', currentConversation.followUp);
-              simulateTyping(currentConversation.followUp);
-            }
-          });
-        } else if (currentConversation.followUp) {
-          console.log('Displaying followUp:', currentConversation.followUp);
-          simulateTyping(currentConversation.followUp);
+          await new Promise((resolve) =>
+            setTimeout(resolve, currentConversation.actionDelay)
+          );
+          setIsThinking(false);
         }
-      });
+        await new Promise((resolve) => currentConversation.action(resolve));
+      }
+
+      // FollowUp
+      if (currentConversation.followUp) {
+        if (currentConversation.followUpDelay) {
+          setIsThinking(true);
+          await new Promise((resolve) =>
+            setTimeout(resolve, currentConversation.followUpDelay)
+          );
+          setIsThinking(false);
+        }
+        await simulateTyping(currentConversation.followUp);
+      }
     } else {
-      console.log('No matching conversation found');
-      simulateTyping(
+      console.log("No matching conversation found");
+      setIsThinking(true);
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // Default delay
+      setIsThinking(false);
+      await simulateTyping(
         "I'm sorry, I don't have a pre-written response for that input."
       );
     }
@@ -284,13 +289,13 @@ const NewNEO = () => {
   };
 
   const startResize = () => {
-    document.addEventListener('mousemove', handleResize);
-    document.addEventListener('mouseup', stopResize);
+    document.addEventListener("mousemove", handleResize);
+    document.addEventListener("mouseup", stopResize);
   };
 
   const stopResize = () => {
-    document.removeEventListener('mousemove', handleResize);
-    document.removeEventListener('mouseup', stopResize);
+    document.removeEventListener("mousemove", handleResize);
+    document.removeEventListener("mouseup", stopResize);
   };
 
   const startRecording = async () => {
@@ -307,7 +312,7 @@ const NewNEO = () => {
 
       mediaRecorderRef.current.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: 'audio/wav',
+          type: "audio/wav",
         });
         const url = URL.createObjectURL(audioBlob);
         setAudioURL(url);
@@ -317,7 +322,7 @@ const NewNEO = () => {
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      console.error("Error accessing microphone:", error);
     }
   };
 
@@ -332,7 +337,7 @@ const NewNEO = () => {
     const newAudioMessage = { content: url, isUser: true, isAudio: true };
     setChatHistory((prev) => [...prev, newAudioMessage]);
 
-    simulateTyping('Processing Audio. Please hold tight...', () => {
+    simulateTyping("Processing Audio. Please hold tight...", () => {
       setIsThinking(true);
       setTimeout(() => {
         setIsThinking(false);
@@ -341,9 +346,9 @@ const NewNEO = () => {
           {
             content: (
               <AudioPlayer
-                audioSrc={'/images/neo-vision/audio.mp3'}
+                audioSrc={"/images/neo-vision/audio.mp3"}
                 onEnded={() => {
-                  simulateTyping('Here is the audio response...');
+                  simulateTyping("Here is the audio response...");
                 }}
               />
             ),
@@ -356,45 +361,59 @@ const NewNEO = () => {
   };
 
   const handleActionClick = async (actionText) => {
-    // Add the action text to the chat history as a user message
-    setChatHistory(prev => [...prev, { content: actionText, isUser: true }]);
+    setChatHistory((prev) => [...prev, { content: actionText, isUser: true }]);
 
-    // Find the matching conversation for the action
     const currentConversation = prewrittenConversation.find(
       (conv) => conv.input.toLowerCase() === actionText.toLowerCase()
     );
 
     if (currentConversation) {
-      // Display output
-      setIsTyping(true);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate typing delay
-      setChatHistory(prev => [...prev, { content: currentConversation.output, isUser: false }]);
-      setIsTyping(false);
-
-      if (currentConversation.action) {
+      // Output
+      if (currentConversation.outputDelay) {
         setIsThinking(true);
-        await new Promise(resolve => currentConversation.action(resolve));
+        await new Promise((resolve) =>
+          setTimeout(resolve, currentConversation.outputDelay)
+        );
         setIsThinking(false);
       }
+      await simulateTyping(currentConversation.output);
 
+      // Action
+      if (currentConversation.action) {
+        if (currentConversation.actionDelay) {
+          setIsThinking(true);
+          await new Promise((resolve) =>
+            setTimeout(resolve, currentConversation.actionDelay)
+          );
+          setIsThinking(false);
+        }
+        await new Promise((resolve) => currentConversation.action(resolve));
+      }
+
+      // FollowUp
       if (currentConversation.followUp) {
-        setIsTyping(true);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate typing delay
-        setChatHistory(prev => [...prev, { content: currentConversation.followUp, isUser: false }]);
-        setIsTyping(false);
+        if (currentConversation.followUpDelay) {
+          setIsThinking(true);
+          await new Promise((resolve) =>
+            setTimeout(resolve, currentConversation.followUpDelay)
+          );
+          setIsThinking(false);
+        }
+        await simulateTyping(currentConversation.followUp);
       }
     } else {
-      // Handle case when no matching conversation is found
-      setIsTyping(true);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate typing delay
-      setChatHistory(prev => [...prev, { content: "I'm sorry, I don't have a pre-written response for that action.", isUser: false }]);
-      setIsTyping(false);
+      setIsThinking(true);
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // Default delay
+      setIsThinking(false);
+      await simulateTyping(
+        "I'm sorry, I don't have a pre-written response for that action."
+      );
     }
   };
 
   return (
     <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
-         <Toaster />
+      <Toaster />
       <nav className="bg-[#1A162F] p-1 flex items-center justify-between">
         <div className="flex items-center ms-4">
           <img
@@ -423,18 +442,14 @@ const NewNEO = () => {
           style={{ width: `${chatWidth}%` }}
         >
           <div className="flex-1 overflow-y-auto p-6 ">
-            {chatHistory.map((message, index) =>
-              message.isThinking ? (
-                <ThinkingIndicator key={index} />
-              ) : (
-                <ChatMessage
-  key={index}
-  content={message.content}
-  isUser={message.isUser}
-  onActionClick={handleActionClick}
-/>
-              )
-            )}
+            {chatHistory.map((message, index) => (
+              <ChatMessage
+                key={index}
+                content={message.content}
+                isUser={message.isUser}
+                onActionClick={handleActionClick}
+              />
+            ))}
             {isThinking && <ThinkingIndicator />}
             <div ref={chatEndRef} />
           </div>
@@ -456,7 +471,7 @@ const NewNEO = () => {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder={isRecording ? 'Recording...' : 'Write prompt'}
+                placeholder={isRecording ? "Recording..." : "Write prompt"}
                 className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
                 disabled={isTyping || isRecording}
                 ref={inputRef}
@@ -484,13 +499,17 @@ const NewNEO = () => {
         >
           <div className="flex  justify-center items-center p-1 bg-[#181729] rounded-xl  ">
             {[
-              { name: 'Code', icon: Code },
-              { name: 'Monitor', icon: ChartNoAxesCombined },
-              { name: 'Browse', icon: Monitor },
+              { name: "Code", icon: Code },
+              { name: "Monitor", icon: ChartNoAxesCombined },
+              { name: "Browse", icon: Monitor },
             ].map(({ name, icon: Icon }) => (
               <button
                 key={name}
-                className={`px-6 py-4 w-full border-none flex items-center justify-center space-x-1 ${activeTab === name ? 'bg-[#2d2d44] shadow-xl rounded-xl' : 'bg-[#181729]'}`}
+                className={`px-6 py-4 w-full border-none flex items-center justify-center space-x-1 ${
+                  activeTab === name
+                    ? "bg-[#2d2d44] shadow-xl rounded-xl"
+                    : "bg-[#181729]"
+                }`}
                 onClick={() => setActiveTab(name)}
               >
                 <Icon size={16} />

@@ -1,22 +1,22 @@
-import React from 'react';
+import React from "react";
 // import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
-import { motion, AnimatePresence } from 'framer-motion';
-import AudioPlayer from './AudioPlayer';
-import { FaCopy } from 'react-icons/fa6';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import './NewNEO.css';
-import { toast } from 'react-hot-toast';
+import { motion, AnimatePresence } from "framer-motion";
+import AudioPlayer from "./AudioPlayer";
+import { FaCopy } from "react-icons/fa6";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import "./NewNEO.css";
+import { toast } from "react-hot-toast";
 
 // eslint-disable-next-line react/prop-types
-const CodeTab = ({ code, language = 'python', onComplete }) => {
-  const [displayedCode, setDisplayedCode] = React.useState('');
+const CodeTab = ({ code, language = "python", onComplete }) => {
+  const [displayedCode, setDisplayedCode] = React.useState("");
   const [isTyping, setIsTyping] = React.useState(true);
   const [copied, setCopied] = React.useState(false);
   const codeContainerRef = React.useRef(null);
 
   React.useEffect(() => {
-    setDisplayedCode('');
+    setDisplayedCode("");
     let i = 0;
     const typingInterval = setInterval(() => {
       if (i < code.length) {
@@ -78,7 +78,7 @@ const CodeTab = ({ code, language = 'python', onComplete }) => {
           className="flex items-center bg-[#3d3d5c] text-gray-300 px-2 py-1 rounded text-sm transition-colors duration-200 hover:bg-[#4d4d7a]"
         >
           <FaCopy className="mr-1" />
-          {copied ? 'Copied!' : 'Copy'}
+          {copied ? "Copied!" : "Copy"}
         </button>
       </div>
       <div
@@ -89,7 +89,7 @@ const CodeTab = ({ code, language = 'python', onComplete }) => {
           <SyntaxHighlighter
             language={language}
             style={vscDarkPlus}
-            customStyle={{ margin: 0, background: 'transparent' }}
+            customStyle={{ margin: 0, background: "transparent" }}
           >
             {displayedCode}
           </SyntaxHighlighter>
@@ -154,14 +154,16 @@ const BrowseTab = ({ videoSrc, onVideoEnd }) => (
 export const getPrewrittenConversations = (setActiveTab, setTabContent) => [
   {
     input:
-      'Hey Neo! I need a voice agent that can handle 100K calls in Spanish.',
-    output: `I see. I'd like to suggest finetuning approach for this. Do you have a dataset or should I curate one from online resources?`,
+      "Hey Neo! I need a voice agent that can handle 100K calls in Spanish.",
+    output: `I see. I'd like to suggest a finetuning approach for this. Do you have a dataset or should I curate one from online resources?`,
+    outputDelay: 2000, // 2 seconds delay before showing output
   },
   {
     input: `Yes, I have a s3 data bucket. Here it is: s3://stt-spanish-english-data/audio-train-00253.parquet`,
     output: `Your dataset has few samples. I'll augment it by adding more and diversifying to cover a wider range of use cases.`,
+    outputDelay: 1500, // 1.5 seconds delay before showing output
     action: (onComplete) => {
-      setActiveTab('Browse');
+      setActiveTab("Browse");
       setTabContent(
         <BrowseTab
           videoSrc="/images/neo-vision/hf.mov"
@@ -169,34 +171,35 @@ export const getPrewrittenConversations = (setActiveTab, setTabContent) => [
         />
       );
     },
+    actionDelay: 1000, // 1 second delay before starting action
     followUp: `I've increased the sample size, improved the quality of dataset, reformatted it and now we can proceed with the finetuning experiments.
       
       Let me know if you have any preferred hyperparameters or training configurations.
       `,
+    followUpDelay: 2000, // 2 seconds delay before showing followUp
   },
   {
-    input: 'No, please proceed with your experimentation!',
-    output: 'Found the best model. Should I deploy it?',
+    input: "No, please proceed with your experimentation!",
+    output: "On it please wait!",
+    outputDelay: 1000, // 1 second delay before showing output
     action: (onComplete) => {
-      setActiveTab('Monitor');
+      setActiveTab("Monitor");
       const imagesToShow = [
-        '/images/neo-vision/finetune-experiment/finetune1.svg',
-        '/images/neo-vision/finetune-experiment/finetune2.svg',
-        '/images/neo-vision/finetune-experiment/finetune3.svg',
-        '/images/neo-vision/finetune-experiment/finetune4.svg',
-        '/images/neo-vision/finetune-experiment/finetune5.svg',
+        "/images/neo-vision/finetune-experiment/finetune1.svg",
+        "/images/neo-vision/finetune-experiment/finetune2.svg",
+        "/images/neo-vision/finetune-experiment/finetune3.svg",
+        "/images/neo-vision/finetune-experiment/finetune4.svg",
+        "/images/neo-vision/finetune-experiment/finetune5.svg",
       ];
-      setTabContent(
-        <MonitorTab
-          images={imagesToShow}
-          imagesPerRow={2} // Set this to 1 for one image per row, 2 for two images per row, etc.
-        />
-      );
+      setTabContent(<MonitorTab images={imagesToShow} imagesPerRow={2} />);
       setTimeout(onComplete, 5000);
     },
+    actionDelay: 4000, // 2 seconds delay before starting action
+    followUp: `Found the best model. Should I deploy it?`,
+    followUpDelay: 1500, // 1.5 seconds delay before showing followUp
   },
   {
-    input: 'Yes Deploy it',
+    input: "Yes Deploy it",
     output: `For optimized inference I am considering below implementations and executing them
 
 - Serving engines:
@@ -208,19 +211,21 @@ export const getPrewrittenConversations = (setActiveTab, setTabContent) => [
   - Float16
   - Float32
 - Different GPU types`,
+    outputDelay: 2500, // 2.5 seconds delay before showing output
     action: (onComplete) => {
-      setActiveTab('Monitor');
+      setActiveTab("Monitor");
       setTabContent(
         <MonitorTab
           images={[
-            '/images/neo-vision/latency-chart/latency1.svg',
-            '/images/neo-vision/latency-chart/latency2.svg',
+            "/images/neo-vision/latency-chart/latency1.svg",
+            "/images/neo-vision/latency-chart/latency2.svg",
           ]}
           imagesPerRow={1}
         />
       );
       setTimeout(onComplete, 1000);
     },
+    actionDelay: 1500, // 1.5 seconds delay before starting action
     followUp: `Here are the charts for latency distributions and cost analysis based on my experiments and I am going forward with using A100 GPU servers for deployment with FP16 compute type.
 
 I am considering the following conditions for auto-scaling pipeline:
@@ -230,17 +235,18 @@ I am considering the following conditions for auto-scaling pipeline:
 - Peak concurrency at 50 requests
 
 Should I proceed?`,
+    followUpDelay: 3000, // 3 seconds delay before showing followUp
   },
-
   {
-    input: 'Yes, go ahead.',
-    output: 'Setting up the deployment on your AWS cloud account.',
+    input: "Yes, go ahead.",
+    output: "Setting up the deployment on your AWS cloud account.",
+    outputDelay: 1500, // 1.5 seconds delay before showing output
     action: (onComplete) => {
-      // Simulate a delay before showing the followUp
       setTimeout(() => {
         onComplete();
       }, 3000); // 3 seconds delay
     },
+    actionDelay: 1000, // 1 second delay before starting action
     followUp: `Service is live at endpoint:
 https://2a4e9fc5-eed1-429c-af91-cb2535517b34.monsterapi.ai/docs
 
@@ -248,45 +254,47 @@ You can take the following actions:
 [action]Try deployment[/action]
 [action]Monitor Performance[/action]
   `,
+    followUpDelay: 2000, // 2 seconds delay before showing followUp
   },
-
   {
-    input: 'Try deployment',
-    output: 'Please give me a audio sample',
+    input: "Try deployment",
+    output: "Please give me an audio sample",
+    outputDelay: 1000, // 1 second delay before showing output
   },
-
- 
-
   {
-    input: 'Monitor Performance',
+    input: "Monitor Performance",
     output: `Sure, here it is.`,
+    outputDelay: 1500, // 1.5 seconds delay before showing output
     action: (onComplete) => {
-      setActiveTab('Monitor');
+      setActiveTab("Monitor");
       setTabContent(
         <MonitorTab
           images={[
-            '/images/neo-vision/monitor/monitor1.svg',
-            '/images/neo-vision/monitor/monitor2.svg',
+            "/images/neo-vision/monitor/monitor1.svg",
+            "/images/neo-vision/monitor/monitor2.svg",
           ]}
           imagesPerRow={1}
         />
       );
       setTimeout(() => {
-        toast.success('P95 latency increased by 65% due to endpoint overload. Scaling up by 2 nodes to reduce latency.', {
-          duration: 3000,
-          position: 'top-center',
-        });
+        toast.success(
+          "P95 latency increased by 65% due to endpoint overload. Scaling up by 2 nodes to reduce latency.",
+          {
+            duration: 3000,
+            position: "top-center",
+          }
+        );
         onComplete();
       }, 3000);
     },
+    actionDelay: 2000, // 2 seconds delay before starting action
   },
-
-
   {
-    input: 'How can i test my deployed model locally?',
-    output: 'Here is the code to test your deployed model',
+    input: "How can I test my deployed model locally?",
+    output: "Here is the code to test your deployed model",
+    outputDelay: 1000, // 1 second delay before showing output
     action: (onComplete) => {
-      setActiveTab('Code');
+      setActiveTab("Code");
       setTabContent(
         <CodeTab
           code={`import pyaudio
@@ -380,6 +388,8 @@ if __name__ == "__main__":
         />
       );
     },
+    actionDelay: 2000, // 2 seconds delay before starting action
     followUp: "Keep your API key secret and don't share it with anyone.",
+    followUpDelay: 1500, // 1.5 seconds delay before showing followUp
   },
 ];
