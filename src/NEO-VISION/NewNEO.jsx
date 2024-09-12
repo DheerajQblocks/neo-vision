@@ -62,21 +62,66 @@ const formatTextWithClickableElements = (text, onActionClick) => {
   });
 };
 
-const ChatMessage = ({ content, isUser, isAudio, onActionClick }) => (
-  <div className={`mb-6 ${isUser ? 'text-right' : 'text-left'}`}>
-    <div
-      className={`inline-block p-4 rounded-lg ${isUser ? 'bg-[#2d2d44]' : 'bg-[#2d2d44]'} max-w-[80%]`}
-    >
-      {isAudio ? (
-        <audio controls src={content}>
-          Your browser does not support the audio element.
-        </audio>
-      ) : (
-        formatTextWithClickableElements(content, onActionClick)
-      )}
+const ChatMessage = ({ content, isUser, onActionClick }) => {
+  const renderActions = (actions) => {
+    return (
+      <div className="mt-4 flex flex-col items-center w-full">
+        <div 
+          className="text-purple-300 px-4 py-2 rounded-full inline-block mb-2 w-full mt-2 text-center"
+          style={{
+            background: 'linear-gradient(90.04deg, #412F9F 0.03%, rgba(24, 23, 41, 0) 90.72%)'
+          }}
+        >
+          <span className="mr-2 text-xl text-center">✦</span>
+          You can take the following actions, click to test
+        </div>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {actions.map((action, index) => {
+            const actionText = action.replace(/^\[action\]|\[\/action\]$/g, '');
+            return (
+              <button
+                key={index}
+                onClick={() => onActionClick(actionText)}
+                className="text-purple-300 px-4 py-2 rounded-md transition-colors"
+                style={{
+                  background: '#4334E630',
+                  border: '0.4px solid #FFFFFF1A',
+                  boxShadow: '0px 4px 12px 0px #00000014'
+                }}
+              >
+                {actionText}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    if (typeof content === 'string') {
+      const parts = content.split(/(\[action\].*?\[\/action\])/g);
+      const message = parts[0].trim();
+      const actions = parts.slice(1).filter(part => part.startsWith('[action]'));
+
+      return (
+        <>
+          <p className="mb-2">{message}</p>
+          {actions.length > 0 && renderActions(actions)}
+        </>
+      );
+    }
+    return <p>{content}</p>;
+  };
+
+  return (
+    <div className={`mb-4 ${isUser ? 'text-right' : 'text-left'}`}>
+      <div className={`inline-block p-4 rounded-lg ${isUser ? 'bg-[#2d2d44]' : 'bg-[#181729]'} max-w-[80%]`}>
+        {content ? renderContent() : null}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const SoundWave = () => (
   <div className="flex items-center space-x-1 mx-2">
@@ -352,12 +397,11 @@ const NewNEO = () => {
                 <ThinkingIndicator key={index} />
               ) : (
                 <ChatMessage
-                  key={index}
-                  content={message.content}
-                  isUser={message.isUser}
-                  isAudio={message.isAudio}
-                  onActionClick={handleActionClick}
-                />
+  key={index}
+  content={message.content}
+  isUser={message.isUser}
+  onActionClick={handleActionClick}
+/>
               )
             )}
             {isThinking && <ThinkingIndicator />}
