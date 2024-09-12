@@ -29,7 +29,8 @@ const customToastStyle = {
   },
 };
 
-const ChatMessage = ({ content, isUser, onActionClick }) => {
+const ChatMessage = ({ content, isUser, onActionClick, isAudio }) => {
+  console.log("is audio", isAudio)
   console.log("content isUser onActionClick", content, isUser, onActionClick)
   const renderActions = (actions) => {
     return (
@@ -95,7 +96,7 @@ const ChatMessage = ({ content, isUser, onActionClick }) => {
           isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"
         } max-w-[80%]`}
       >
-        {content ? renderContent() : null}
+        {content && isAudio != true ? renderContent() : content}
       </div>
     </div>
   );
@@ -464,6 +465,7 @@ const NewNEO = () => {
                 key={index}
                 content={message.content}
                 isUser={message.isUser}
+                isAudio={message?.isAudio}
                 onActionClick={handleActionClick}
               />
             ))}
