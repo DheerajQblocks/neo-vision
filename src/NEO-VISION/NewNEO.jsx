@@ -335,6 +335,7 @@ const NewNEO = () => {
 
   const sendAudioMessage = (url) => {
     const newAudioMessage = { content: url, isUser: true, isAudio: true };
+    console.log("new Audio Message", newAudioMessage)
     setChatHistory((prev) => [...prev, newAudioMessage]);
 
     simulateTyping("Processing Audio. Please hold tight...", () => {
