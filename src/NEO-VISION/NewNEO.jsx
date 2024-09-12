@@ -355,10 +355,41 @@ const NewNEO = () => {
     });
   };
 
-  const handleActionClick = (action) => {
-    setInputValue(action);
-    // Optionally, you can also trigger the form submission here
-    // handleSubmit(new Event('submit'));
+  const handleActionClick = async (actionText) => {
+    // Add the action text to the chat history as a user message
+    setChatHistory(prev => [...prev, { content: actionText, isUser: true }]);
+
+    // Find the matching conversation for the action
+    const currentConversation = prewrittenConversation.find(
+      (conv) => conv.input.toLowerCase() === actionText.toLowerCase()
+    );
+
+    if (currentConversation) {
+      // Display output
+      setIsTyping(true);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate typing delay
+      setChatHistory(prev => [...prev, { content: currentConversation.output, isUser: false }]);
+      setIsTyping(false);
+
+      if (currentConversation.action) {
+        setIsThinking(true);
+        await new Promise(resolve => currentConversation.action(resolve));
+        setIsThinking(false);
+      }
+
+      if (currentConversation.followUp) {
+        setIsTyping(true);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate typing delay
+        setChatHistory(prev => [...prev, { content: currentConversation.followUp, isUser: false }]);
+        setIsTyping(false);
+      }
+    } else {
+      // Handle case when no matching conversation is found
+      setIsTyping(true);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate typing delay
+      setChatHistory(prev => [...prev, { content: "I'm sorry, I don't have a pre-written response for that action.", isUser: false }]);
+      setIsTyping(false);
+    }
   };
 
   return (
