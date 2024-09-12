@@ -201,18 +201,23 @@ export const getPrewrittenConversations = (setActiveTab, setTabContent) => [
   },
   {
     input: "Yes Deploy it",
-    output: `For optimized inference I am considering below implementations and executing them
-
-- Serving engines:
+    output: `For optimized inference I am considering below implementations and executing them:
+  
+  ## Serving engines:
   - CTranslate2
   - Huggingface
   - WhisperX
   - Huggingface FA2
-- Compute type:
+  
+  ## Compute type:
   - Float16
   - Float32
-- Different GPU types`,
-    outputDelay: 2500, // 2.5 seconds delay before showing output
+  
+  ## Other considerations:
+  - Different GPU types
+  
+  `,
+    outputDelay: 2500,
     action: (onComplete) => {
       setActiveTab("Monitor");
       setTabContent(
@@ -226,17 +231,21 @@ export const getPrewrittenConversations = (setActiveTab, setTabContent) => [
       );
       setTimeout(onComplete, 1000);
     },
-    actionDelay: 1500, // 1.5 seconds delay before starting action
-    followUp: `Here are the charts for latency distributions and cost analysis based on my experiments and I am going forward with using A100 GPU servers for deployment with FP16 compute type.
-
-I am considering the following conditions for auto-scaling pipeline:
-
-- US timezone
-- 100K sessions per day
-- Peak concurrency at 50 requests
-
-Should I proceed?`,
-    followUpDelay: 3000, // 3 seconds delay before showing followUp
+    actionDelay: 1500,
+    followUp: `Here are the charts for latency distributions and cost analysis based on my experiments.
+  
+  **Decision:** I am going forward with using **A100 GPU servers** for deployment with **FP16 compute type**.
+  
+  I am considering the following conditions for auto-scaling pipeline:
+  
+  1. US timezone
+  2. 100K sessions per day
+  3. Peak concurrency at 50 requests
+  
+  Should I proceed?
+  
+  `,
+    followUpDelay: 3000,
   },
   {
     input: "Yes, go ahead.",

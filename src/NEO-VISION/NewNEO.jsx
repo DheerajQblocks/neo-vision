@@ -11,6 +11,7 @@ import { getPrewrittenConversations } from "./GetPrewrittenConversations";
 import "./NewNEO.css";
 import AudioPlayer from "./AudioPlayer";
 import { Toaster, toast } from 'react-hot-toast';
+import Markdown from 'react-markdown'
 
 
 
@@ -29,6 +30,7 @@ const customToastStyle = {
 };
 
 const ChatMessage = ({ content, isUser, onActionClick }) => {
+  console.log("content isUser onActionClick", content, isUser, onActionClick)
   const renderActions = (actions) => {
     return (
       <div className="mt-4 flex flex-col items-center w-full">
@@ -72,7 +74,10 @@ const ChatMessage = ({ content, isUser, onActionClick }) => {
       const actions = parts
         .slice(1)
         .filter((part) => part.startsWith("[action]"));
-
+      if(!actions || actions.length === 0 ){
+        console.log("here markdown")
+        return <Markdown>{content}</Markdown>;
+      }
       return (
         <>
           <p className="mb-2">{message}</p>
@@ -80,7 +85,7 @@ const ChatMessage = ({ content, isUser, onActionClick }) => {
         </>
       );
     }
-    return <p>{content}</p>;
+    
   };
 
   return (
