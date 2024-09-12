@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { Play, Pause, Download } from 'lucide-react';
 
 const AudioPlayer = ({ audioSrc, onEnded }) => {
   const audioRef = useRef(null);
@@ -112,41 +113,45 @@ const AudioPlayer = ({ audioSrc, onEnded }) => {
   };
 
   return (
-    <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
-      <canvas
-        ref={canvasRef}
-        width="300"
-        height="100"
-        className="w-full mb-4"
-      />
-      <audio ref={audioRef} src={audioSrc} className="hidden" />
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex space-x-2">
-          <button
-            onClick={togglePlayPause}
-            className="bg-blue-500 border-none text-white px-4 py-2 rounded-full focus:outline-none hover:bg-blue-600 transition"
-          >
-            {isPlaying ? 'Pause' : 'Play'}
-          </button>
-          <button
-            onClick={handleDownload}
-            className="bg-green-500 border-none text-white px-4 py-2 rounded-full focus:outline-none hover:bg-green-600 transition"
-          >
-            Download
-          </button>
-        </div>
-        <div className="text-white font-mono">
-          {formatTime(currentTime)} / {formatTime(duration)}
-        </div>
+    <div className="bg-[#181729] p-4 rounded-lg shadow-lg">
+    <canvas
+      ref={canvasRef}
+      width="300"
+      height="100"
+      className="w-full mb-4"
+    />
+    <audio ref={audioRef} src={audioSrc} className="hidden" />
+    <div className="flex items-center justify-between mb-2">
+      <div className="flex space-x-2">
+        <button
+          onClick={togglePlayPause}
+          className="bg-[#4334E6] hover:bg-[#3A2ECF] text-white px-4 py-2 rounded-full focus:outline-none transition-colors duration-200"
+        >
+          {isPlaying ? (
+            <Pause size={20} />
+          ) : (
+            <Play size={20} />
+          )}
+        </button>
+        <button
+          onClick={handleDownload}
+          className="bg-[#2D2D44] hover:bg-[#3D3D5C] text-white px-4 py-2 rounded-full focus:outline-none transition-colors duration-200"
+        >
+          <Download size={20} />
+        </button>
       </div>
-      <div className="bg-gray-700 rounded-full h-2">
-        <div
-          className="bg-blue-500 h-2 rounded-full"
-          style={{ width: `${(currentTime / duration) * 100}%` }}
-        ></div>
+      <div className="text-white font-mono text-sm">
+        {formatTime(currentTime)} / {formatTime(duration)}
       </div>
     </div>
-  );
+    <div className="bg-[#2D2D44] rounded-full h-2">
+      <div
+        className="bg-[#4334E6] h-2 rounded-full"
+        style={{ width: `${(currentTime / duration) * 100}%` }}
+      ></div>
+    </div>
+  </div>
+);
 };
 
 export default AudioPlayer;

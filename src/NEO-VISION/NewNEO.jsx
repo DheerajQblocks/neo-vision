@@ -115,7 +115,7 @@ const ChatMessage = ({ content, isUser, onActionClick }) => {
     <div className={`mb-4 ${isUser ? "text-right" : "text-left"}`}>
       <div
         className={`inline-block p-4 rounded-lg ${
-          isUser ? "bg-[#2d2d44]" : "bg-[#181729]"
+          isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"
         } max-w-[80%]`}
       >
         {content ? renderContent() : null}
@@ -336,7 +336,22 @@ const NewNEO = () => {
   const sendAudioMessage = (url) => {
     const newAudioMessage = { content: url, isUser: true, isAudio: true };
     console.log("new Audio Message", newAudioMessage)
-    setChatHistory((prev) => [...prev, newAudioMessage]);
+    // setChatHistory((prev) => [...prev, newAudioMessage]);
+    setChatHistory((prev) => [
+      ...prev,
+      {
+        content: (
+          <AudioPlayer
+            audioSrc={"/images/neo-vision/audio.mp3"}
+            onEnded={() => {
+              simulateTyping("Here is the audio response...");
+            }}
+          />
+        ),
+        isUser: true,
+        isAudio: true,
+      },
+    ]);
 
     simulateTyping("Processing Audio. Please hold tight...", () => {
       setIsThinking(true);
