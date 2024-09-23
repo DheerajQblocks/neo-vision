@@ -204,7 +204,7 @@ const NewNEO = () => {
     setChatHistory((prev) => [...prev, { content: "", isUser: false }]);
 
     for (let i = 0; i <= text.length; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 5)); // 5ms delay between characters
+      await new Promise((resolve) => setTimeout(resolve, 1)); // 50ms delay between characters
       setChatHistory((prev) => {
         const newHistory = [...prev];
         newHistory[newHistory.length - 1].content = text.substring(0, i);
@@ -218,6 +218,32 @@ const NewNEO = () => {
     if (callback) setTimeout(callback, 500);
   };
 
+  const fetchChatResponse = async (query) => {
+    const token = import.meta.env.VITE_APP_API_TOKEN; // Ensure your token is stored in .env
+    setIsThinking(true); // Show loading indicator
+    const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/chat?query=${encodeURIComponent(query)}&token=${token}`, {
+      method: 'GET',
+      headers: {
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const assistantMessages = data.filter(msg => msg.name === "Monsterapi_assistant");
+      const lastMessage = assistantMessages[assistantMessages.length - 1]?.content; // Get the last message
+
+      if (lastMessage) {
+        await simulateTyping(lastMessage); // Call simulateTyping to show the response with typing effect
+      }
+    } else {
+      console.error("Error fetching chat response:", response.statusText);
+    }
+    setIsThinking(false); // Hide loading indicator
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (inputValue.trim() === "" || isTyping) return;
@@ -226,55 +252,8 @@ const NewNEO = () => {
     setChatHistory((prev) => [...prev, { content: inputValue, isUser: true }]);
     setInputValue("");
 
-    const currentConversation = prewrittenConversation.find(
-      (conv) => conv.input.toLowerCase() === inputValue.toLowerCase()
-    );
-
-    console.log("Matched conversation:", currentConversation);
-
-    if (currentConversation) {
-      // Output
-      if (currentConversation.outputDelay) {
-        setIsThinking(true);
-        await new Promise((resolve) =>
-          setTimeout(resolve, currentConversation.outputDelay)
-        );
-        setIsThinking(false);
-      }
-      await simulateTyping(currentConversation.output);
-
-      // Action
-      if (currentConversation.action) {
-        if (currentConversation.actionDelay) {
-          setIsThinking(true);
-          await new Promise((resolve) =>
-            setTimeout(resolve, currentConversation.actionDelay)
-          );
-          setIsThinking(false);
-        }
-        await new Promise((resolve) => currentConversation.action(resolve));
-      }
-
-      // FollowUp
-      if (currentConversation.followUp) {
-        if (currentConversation.followUpDelay) {
-          setIsThinking(true);
-          await new Promise((resolve) =>
-            setTimeout(resolve, currentConversation.followUpDelay)
-          );
-          setIsThinking(false);
-        }
-        await simulateTyping(currentConversation.followUp);
-      }
-    } else {
-      console.log("No matching conversation found");
-      setIsThinking(true);
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Default delay
-      setIsThinking(false);
-      await simulateTyping(
-        "I'm sorry, I don't have a pre-written response for that input."
-      );
-    }
+    // Call the API with the user input
+    await fetchChatResponse(inputValue);
   };
 
   const handleResize = (e) => {
