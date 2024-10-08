@@ -12,6 +12,8 @@ import "./NewNEO.css";
 import AudioPlayer from "./AudioPlayer";
 import { Toaster, toast } from 'react-hot-toast';
 import Markdown from 'react-markdown'
+import TerminalCustome from "../artifact/TerminalCustome";
+import FileBrowserCodeViewer from "../artifact/FileBrowserCodeViewer";
 
 
 
@@ -221,7 +223,16 @@ const NewNEO = () => {
   const fetchChatResponse = async (query) => {
     const token = import.meta.env.VITE_APP_API_TOKEN; // Ensure your token is stored in .env
     setIsThinking(true); // Show loading indicator
-    const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/chat?query=${encodeURIComponent(query)}&token=${token}`, {
+
+    // Prepare the full conversation history with labels
+    const fullConversation = chatHistory.map(msg => 
+      `${msg.isUser ? "User: " : "Assistant: "} ${msg.content}`
+    ).join("\n");
+
+    // Include the current user query in the conversation
+    const completeQuery = `${fullConversation}\nUser: ${query}`;
+
+    const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/chat?query=${encodeURIComponent(completeQuery)}&token=${token}`, {
       method: 'GET',
       headers: {
         'Accept-Language': 'en-US,en;q=0.9',
@@ -525,6 +536,7 @@ const NewNEO = () => {
           </div>
         </div>
       </div>
+      {activeTab === "Code" ? <TerminalCustome/> : activeTab === "Browse" ? <FileBrowserCodeViewer/> : "" }
     </div>
   );
 };
