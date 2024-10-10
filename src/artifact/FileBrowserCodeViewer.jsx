@@ -1,88 +1,107 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
+import Editor from '@monaco-editor/react';
 
 const FileBrowserCodeViewer = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
   const [fileContent, setFileContent] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [error, setError] = useState('');
-  const [executionResult, setExecutionResult] = useState('');
-  const [isExecuting, setIsExecuting] = useState(false);
+  const [fileTree, setFileTree] = useState([]);
+  const [expandedDirs, setExpandedDirs] = useState(new Set());
 
-  const handleFileChange = useCallback((event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFileContent(e.target.result);
-        setError('');
-        setExecutionResult('');
-      };
-      reader.onerror = () => {
-        setError('Error reading file');
-      };
-      reader.readAsText(file);
-    }
-  }, []);
-
-  const renderArtifact = (content) => {
-    const artifactRegex = /```(.*?)\n([\s\S]*?)```/g;
-    const matches = [...content.matchAll(artifactRegex)];
-
-    return matches.map((match, index) => {
-      const [fullMatch, type, artifactContent] = match;
-      switch (type.trim()) {
-        case 'javascript':
-          return (
-            <pre key={index} className="bg-gray-800 text-white p-2 rounded">
-              <code>{artifactContent}</code>
-            </pre>
-          );
-        case 'markdown':
-          return (
-            <div key={index} className="bg-gray-100 p-2 rounded">
-              <Markdown>{artifactContent}</Markdown>
-            </div>
-          );
-        case 'image':
-          return (
-            <div key={index} className="p-2">
-              <img src={artifactContent.trim()} alt="Artifact" />
-            </div>
-          );
-        default:
-          return <pre key={index}>{fullMatch}</pre>;
+  const readDirectory = async (directoryHandle) => {
+    const files = [];
+    for await (const entry of directoryHandle.values()) {
+      if (entry.kind === 'file') {
+        files.push({ name: entry.name, handle: entry, type: 'file' });
+      } else if (entry.kind === 'directory') {
+        const subFiles = await readDirectory(entry);
+        files.push({ name: entry.name, children: subFiles, type: 'directory' });
       }
+    }
+    return files;
+  };
+
+  const handleDirectoryOpen = async () => {
+    try {
+      const directoryHandle = await window.showDirectoryPicker();
+      const files = await readDirectory(directoryHandle);
+      setFileTree(files);
+    } catch (error) {
+      console.error('Error accessing directory:', error);
+    }
+  };
+
+  const handleFileClick = async (fileHandle) => {
+    const file = await fileHandle.getFile();
+    const content = await file.text();
+    setSelectedFile(file.name);
+    setFileContent(content);
+  };
+
+  const toggleDirectory = (dirName) => {
+    const newExpandedDirs = new Set(expandedDirs);
+    if (newExpandedDirs.has(dirName)) {
+      newExpandedDirs.delete(dirName);
+    } else {
+      newExpandedDirs.add(dirName);
+    }
+    setExpandedDirs(newExpandedDirs);
+  };
+
+  const renderFileTree = (nodes, parentPath = '') => {
+    return nodes.map((node) => {
+      const currentPath = `${parentPath}/${node.name}`;
+      if (node.type === 'file') {
+        return (
+          <div
+            key={currentPath}
+            className="cursor-pointer pl-4"
+            onClick={() => handleFileClick(node.handle)}
+          >
+            {node.name}
+          </div>
+        );
+      } else if (node.type === 'directory') {
+        return (
+          <div key={currentPath}>
+            <div
+              className="font-bold cursor-pointer"
+              onClick={() => toggleDirectory(currentPath)}
+            >
+              {expandedDirs.has(currentPath) ? '📂' : '📁'} {node.name}
+            </div>
+            {expandedDirs.has(currentPath) && (
+              <div className="ml-4">{renderFileTree(node.children, currentPath)}</div>
+            )}
+          </div>
+        );
+      }
+      return null;
     });
   };
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '42rem', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>File Browser, Code Viewer, and Executor</h1>
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="file-upload" style={{ cursor: 'pointer', backgroundColor: '#3b82f6', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.25rem', display: 'inline-flex', alignItems: 'center' }}>
-          📁 Choose File
-        </label>
-        <input
-          id="file-upload"
-          type="file"
-          onChange={handleFileChange}
-          style={{ display: 'none' }}
-          accept=".js,.txt"
-        />
+    <div className="flex h-full">
+      <div className="w-1/4 bg-gray-800 text-white p-2 overflow-y-auto">
+        <button
+          onClick={handleDirectoryOpen}
+          className="bg-blue-500 text-white py-2 px-4 rounded mb-4"
+        >
+          Open Directory
+        </button>
+        <div>{renderFileTree(fileTree)}</div>
       </div>
-      {error && (
-        <div style={{ backgroundColor: '#fee2e2', border: '1px solid #f87171', borderRadius: '0.25rem', padding: '1rem', marginBottom: '1rem' }}>
-          <p style={{ color: '#b91c1c', fontWeight: 'bold' }}>Error</p>
-          <p style={{ color: '#b91c1c' }}>{error}</p>
-        </div>
-      )}
-      {fileName && <p style={{ marginBottom: '0.5rem' }}>Selected file: {fileName}</p>}
-      {fileContent && (
-        <div style={{ marginTop: '1rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 'semibold', marginBottom: '0.5rem' }}>File Content:</h2>
-          {renderArtifact(fileContent)}
-        </div>
-      )}
+      <div className="w-3/4 p-2">
+        {selectedFile ? (
+          <Editor
+            height="90vh"
+            defaultLanguage="javascript"
+            value={fileContent}
+            onChange={(value) => setFileContent(value)}
+          />
+        ) : (
+          <div>Select a file to view/edit</div>
+        )}
+      </div>
     </div>
   );
 };
