@@ -415,7 +415,7 @@ const NewNEO = () => {
 
   return (
     <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
-       <Toaster
+      <Toaster
         position="top-center"
         toastOptions={{
           duration: 3000,
@@ -433,15 +433,6 @@ const NewNEO = () => {
         </div>
         <div className="flex space-x-2">
           <img src="/images/neo-vision/btn-navbar.svg" alt="Neo Logo" />
-          {/* <button className="p-2 rounded-lg bg-[#2d2d44]">
-            <Layers size={16} />
-          </button>
-          <button className="p-2 rounded-lg bg-[#2d2d44]">
-            <Grid size={16} />
-          </button>
-          <button className="p-2 rounded-lg bg-[#2d2d44]">
-            <Sun size={16} />
-          </button> */}
         </div>
       </nav>
       <div className="flex flex-1 bg-[#0C0A1F] p-4 overflow-hidden">
@@ -463,7 +454,7 @@ const NewNEO = () => {
             <div ref={chatEndRef} />
           </div>
           <form onSubmit={handleSubmit} className="p-4">
-            <div className="flex items-center bg-[#2D2D44] rounded-full py-1  overflow-hidden">
+            <div className="flex items-center bg-[#2D2D44] rounded-full py-1 overflow-hidden">
               <button
                 type="button"
                 className="bg-[#4A4A6A] rounded-full border-none p-3 ml-1"
@@ -498,7 +489,7 @@ const NewNEO = () => {
 
         <div
           ref={resizeRef}
-          className="w-4  cursor-col-resize select-none"
+          className="w-4 cursor-col-resize select-none"
           onMouseDown={startResize}
         ></div>
 
@@ -506,7 +497,7 @@ const NewNEO = () => {
           className="rounded-xl overflow-hidden"
           style={{ width: `${100 - chatWidth}%` }}
         >
-          <div className="flex  justify-center items-center p-1 bg-[#181729] rounded-xl  ">
+          <div className="flex justify-center items-center p-1 bg-[#181729] rounded-xl">
             {[
               { name: "Code", icon: Code },
               { name: "Monitor", icon: ChartNoAxesCombined },
@@ -527,16 +518,13 @@ const NewNEO = () => {
             ))}
           </div>
 
-          <div
-            className="
-          bg-[141324]
-           mt-4  p-6 h-[calc(100%-4rem)] overflow-auto rounded-xl"
-          >
-            {tabContent}
+          <div className="bg-[#141324] mt-4 p-6 h-[calc(100%-4rem)] overflow-auto rounded-xl">
+            {activeTab === "Code" && <TerminalCustome />}
+            {activeTab === "Browse" && <FileBrowserCodeViewer />}
+            {activeTab === "Monitor" && tabContent}
           </div>
         </div>
       </div>
-      {activeTab === "Code" ? <TerminalCustome/> : activeTab === "Browse" ? <FileBrowserCodeViewer/> : "" }
     </div>
   );
 };

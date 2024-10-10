@@ -37,6 +37,24 @@ const TerminalCustome = () => {
         }
     }
 
+    // Add dummy response with artifacts
+    if (command === 'show artifacts') {
+      response = `
+        Here are some artifacts:
+        \`\`\`javascript
+        console.log('Hello, World!');
+        \`\`\`
+        \`\`\`markdown
+        # Markdown Example
+        - Item 1
+        - Item 2
+        \`\`\`
+        \`\`\`image
+        ![Sample Image](https://via.placeholder.com/150)
+        \`\`\`
+      `;
+    }
+
     setOutput([...output, `$ ${input}`, response]);
     setInput('');
   };
