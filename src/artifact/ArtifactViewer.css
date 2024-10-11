@@ -1,0 +1,18 @@
+.artifact-viewer {
+    background-color: #1e1e2f;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .code-container {
+    position: relative;
+    background-color: #1e1e2f;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .artifact-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }

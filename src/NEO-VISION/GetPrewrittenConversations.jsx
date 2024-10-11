@@ -420,7 +420,7 @@ if __name__ == "__main__":
         import pyaudio
         import wave
         import requests
-        import simpleaudio as sa`} />);
+        import simpleaudio as sa`} type="code" language="python" />);
       setTimeout(onComplete, 2000);
     },
     actionDelay: 2000, // 2 seconds delay before starting action
