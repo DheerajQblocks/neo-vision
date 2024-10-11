@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
-import TerminalCustome from './TerminalCustome'; // Import the TerminalCustome component
+import { FiFolder, FiFolderPlus, FiFile, FiTerminal, FiSave, FiRefreshCw, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import TerminalCustome from './TerminalCustome';
 
 const FileBrowserCodeViewer = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileContent, setFileContent] = useState('');
   const [fileTree, setFileTree] = useState([]);
   const [expandedDirs, setExpandedDirs] = useState(new Set());
-  const [isCLIOpen, setIsCLIOpen] = useState(false); // State to manage CLI visibility
+  const [isCLIOpen, setIsCLIOpen] = useState(true);
+  const [theme, setTheme] = useState('vs-dark');
+  const [language, setLanguage] = useState('javascript');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const readDirectory = async (directoryHandle) => {
     const files = [];
@@ -19,7 +23,10 @@ const FileBrowserCodeViewer = () => {
         files.push({ name: entry.name, children: subFiles, type: 'directory' });
       }
     }
-    return files;
+    return files.sort((a, b) => {
+      if (a.type === b.type) return a.name.localeCompare(b.name);
+      return a.type === 'directory' ? -1 : 1;
+    });
   };
 
   const handleDirectoryOpen = async () => {
@@ -27,26 +34,47 @@ const FileBrowserCodeViewer = () => {
       const directoryHandle = await window.showDirectoryPicker();
       const files = await readDirectory(directoryHandle);
       setFileTree(files);
+      setIsSidebarOpen(true);
     } catch (error) {
       console.error('Error accessing directory:', error);
     }
   };
 
   const handleFileClick = async (fileHandle) => {
-    const file = await fileHandle.getFile();
-    const content = await file.text();
-    setSelectedFile(file.name);
-    setFileContent(content);
+    try {
+      const file = await fileHandle.getFile();
+      const content = await file.text();
+      setSelectedFile(file.name);
+      setFileContent(content);
+      setLanguage(getLanguageFromFileName(file.name));
+    } catch (error) {
+      console.error('Error reading file:', error);
+    }
+  };
+
+  const getLanguageFromFileName = (fileName) => {
+    const extension = fileName.split('.').pop().toLowerCase();
+    const languageMap = {
+      js: 'javascript',
+      py: 'python',
+      html: 'html',
+      css: 'css',
+      json: 'json',
+      // Add more mappings as needed
+    };
+    return languageMap[extension] || 'plaintext';
   };
 
   const toggleDirectory = (dirName) => {
-    const newExpandedDirs = new Set(expandedDirs);
-    if (newExpandedDirs.has(dirName)) {
-      newExpandedDirs.delete(dirName);
-    } else {
-      newExpandedDirs.add(dirName);
-    }
-    setExpandedDirs(newExpandedDirs);
+    setExpandedDirs(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dirName)) {
+        newSet.delete(dirName);
+      } else {
+        newSet.add(dirName);
+      }
+      return newSet;
+    });
   };
 
   const renderFileTree = (nodes, parentPath = '') => {
@@ -56,20 +84,26 @@ const FileBrowserCodeViewer = () => {
         return (
           <div
             key={currentPath}
-            className="cursor-pointer pl-4"
+            className="flex items-center space-x-2 cursor-pointer pl-4 py-1 hover:bg-gray-700"
             onClick={() => handleFileClick(node.handle)}
           >
-            {node.name}
+            <FiFile className="text-blue-400" />
+            <span>{node.name}</span>
           </div>
         );
       } else if (node.type === 'directory') {
         return (
           <div key={currentPath}>
             <div
-              className="font-bold cursor-pointer"
+              className="flex items-center space-x-2 font-bold cursor-pointer py-1 hover:bg-gray-700"
               onClick={() => toggleDirectory(currentPath)}
             >
-              {expandedDirs.has(currentPath) ? '📂' : '📁'} {node.name}
+              {expandedDirs.has(currentPath) ? (
+                <FiFolder className="text-yellow-400" />
+              ) : (
+                <FiFolderPlus className="text-yellow-400" />
+              )}
+              <span>{node.name}</span>
             </div>
             {expandedDirs.has(currentPath) && (
               <div className="ml-4">{renderFileTree(node.children, currentPath)}</div>
@@ -81,40 +115,112 @@ const FileBrowserCodeViewer = () => {
     });
   };
 
+  const handleSave = async () => {
+    if (selectedFile && fileContent) {
+      try {
+        const blob = new Blob([fileContent], { type: 'text/plain' });
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: selectedFile,
+        });
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        console.log('File saved successfully');
+      } catch (error) {
+        console.error('Error saving file:', error);
+      }
+    }
+  };
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'vs-dark' ? 'vs-light' : 'vs-dark');
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
+
   return (
-    <>
-    <div className="flex h-full">
-      <div className="w-1/4 bg-gray-800 text-white p-2 overflow-y-auto">
-        <button
-          onClick={handleDirectoryOpen}
-          className="bg-blue-500 text-white py-2 px-4 rounded mb-4"
-        >
-          Open Directory
-        </button>
-        <div>{renderFileTree(fileTree)}</div>
+    <div className={`flex flex-col h-screen ${theme === 'vs-dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+      <div className="flex-1 flex">
+        <div className={`${isSidebarOpen ? 'w-1/4' : 'w-10'} bg-gray-800 text-white p-2 transition-all duration-300 ease-in-out`}>
+          <button
+            onClick={toggleSidebar}
+            className="mb-4 p-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors"
+          >
+            {isSidebarOpen ? <FiChevronLeft /> : <FiChevronRight />}
+          </button>
+          {isSidebarOpen && (
+            <>
+              <button
+                onClick={handleDirectoryOpen}
+                className="flex items-center space-x-2 bg-blue-500 text-white py-2 px-4 rounded mb-4 hover:bg-blue-600 transition-colors"
+              >
+                <FiFolder />
+                <span>Open Directory</span>
+              </button>
+              <div>{renderFileTree(fileTree)}</div>
+            </>
+          )}
+        </div>
+        <div className="flex-1 p-2 flex flex-col">
+          {selectedFile ? (
+            <>
+              <div className="flex justify-between mb-2">
+                <div className="text-lg font-bold">{selectedFile}</div>
+                <div className="space-x-2">
+                  <button
+                    onClick={handleSave}
+                    className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600 transition-colors"
+                  >
+                    <FiSave />
+                  </button>
+                  <button
+                    onClick={toggleTheme}
+                    className="bg-purple-500 text-white py-1 px-3 rounded hover:bg-purple-600 transition-colors"
+                  >
+                    <FiRefreshCw />
+                  </button>
+                </div>
+              </div>
+              <Editor
+                height="100%"
+                language={language}
+                value={fileContent}
+                onChange={(value) => setFileContent(value)}
+                theme={theme}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  lineNumbers: 'on',
+                  roundedSelection: false,
+                  scrollBeyondLastLine: false,
+                  readOnly: false,
+                  automaticLayout: true,
+                }}
+              />
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              {fileTree.length > 0 ? 'Select a file to view/edit' : 'Open a directory to start'}
+            </div>
+          )}
+        </div>
       </div>
-      <div className="w-3/4 p-2">
-        {selectedFile ? (
-          <Editor
-            height="90vh"
-            defaultLanguage="javascript"
-            value={fileContent}
-            onChange={(value) => setFileContent(value)}
-          />
-        ) : (
-          <div>Select a file to view/edit</div>
+      <div className="h-1/4 bg-black">
+        {/* <button
+          onClick={() => setIsCLIOpen(!isCLIOpen)}
+          className="flex items-center space-x-2 bg-green-500 text-white py-2 px-4 rounded mt-2 ml-2 hover:bg-green-600 transition-colors"
+        >
+          <FiTerminal />
+          <span>{isCLIOpen ? 'Hide CLI' : 'Show CLI'}</span>
+        </button> */}
+        {isCLIOpen && (
+            <TerminalCustome/>
+          // </div>
         )}
       </div>
     </div>
-
-    <button
-          onClick={() => setIsCLIOpen(!isCLIOpen)} // Toggle CLI visibility
-          className="bg-green-500 text-white py-2 px-4 rounded mt-4"
-        >
-          {isCLIOpen ? 'Hide CLI' : 'Show CLI'}
-        </button>
-        {isCLIOpen && <TerminalCustome />} {/* Conditionally render TerminalCustome */}
-        </>
   );
 };
 
