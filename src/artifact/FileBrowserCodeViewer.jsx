@@ -82,6 +82,7 @@ const FileBrowserCodeViewer = () => {
   };
 
   return (
+    <>
     <div className="flex h-full">
       <div className="w-1/4 bg-gray-800 text-white p-2 overflow-y-auto">
         <button
@@ -91,12 +92,6 @@ const FileBrowserCodeViewer = () => {
           Open Directory
         </button>
         <div>{renderFileTree(fileTree)}</div>
-        <button
-          onClick={() => setIsCLIOpen(!isCLIOpen)} // Toggle CLI visibility
-          className="bg-green-500 text-white py-2 px-4 rounded mt-4"
-        >
-          {isCLIOpen ? 'Hide CLI' : 'Show CLI'}
-        </button>
       </div>
       <div className="w-3/4 p-2">
         {selectedFile ? (
@@ -109,9 +104,17 @@ const FileBrowserCodeViewer = () => {
         ) : (
           <div>Select a file to view/edit</div>
         )}
-        {isCLIOpen && <TerminalCustome />} {/* Conditionally render TerminalCustome */}
       </div>
     </div>
+
+    <button
+          onClick={() => setIsCLIOpen(!isCLIOpen)} // Toggle CLI visibility
+          className="bg-green-500 text-white py-2 px-4 rounded mt-4"
+        >
+          {isCLIOpen ? 'Hide CLI' : 'Show CLI'}
+        </button>
+        {isCLIOpen && <TerminalCustome />} {/* Conditionally render TerminalCustome */}
+        </>
   );
 };
 

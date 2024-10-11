@@ -560,7 +560,7 @@ const handleActionClick = async (actionText) => {
         >
           <div className="flex justify-center items-center p-1 bg-[#181729] rounded-xl">
             {[
-              { name: "CLI", icon: Code },
+              { name: "Artifact Viewer", icon: Code },
               { name: "Monitor", icon: ChartNoAxesCombined },
               { name: "File Explorer", icon: Monitor },
             ].map(({ name, icon: Icon }) => (
@@ -580,7 +580,7 @@ const handleActionClick = async (actionText) => {
           </div>
 
           <div className="bg-[#141324] mt-4 p-6 h-[calc(100%-4rem)] overflow-auto rounded-xl">
-            {activeTab === "CLI" && <TerminalCustome />}
+            {activeTab === "Artifact Viewer" && <ArtifactViewer content={""} />}
             {activeTab === "File Explorer" && <FileBrowserCodeViewer />}
             {activeTab === "Monitor" && tabContent}
           </div>
