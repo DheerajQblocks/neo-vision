@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
 import { FiFolder, FiFolderPlus, FiFile, FiTerminal, FiSave, FiRefreshCw, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import TerminalCustome from './TerminalCustome';
+import { debounce } from 'lodash';
 
 const FileBrowserCodeViewer = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -12,6 +13,8 @@ const FileBrowserCodeViewer = () => {
   const [theme, setTheme] = useState('vs-dark');
   const [language, setLanguage] = useState('javascript');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentFileHandle, setCurrentFileHandle] = useState(null);
+  const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(true);
 
   const readDirectory = async (directoryHandle) => {
     const files = [];
@@ -31,7 +34,7 @@ const FileBrowserCodeViewer = () => {
 
   const handleDirectoryOpen = async () => {
     try {
-      const directoryHandle = await window.showDirectoryPicker();
+      const directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
       const files = await readDirectory(directoryHandle);
       setFileTree(files);
       setIsSidebarOpen(true);
@@ -47,6 +50,7 @@ const FileBrowserCodeViewer = () => {
       setSelectedFile(file.name);
       setFileContent(content);
       setLanguage(getLanguageFromFileName(file.name));
+      setCurrentFileHandle(fileHandle);
     } catch (error) {
       console.error('Error reading file:', error);
     }
@@ -115,15 +119,11 @@ const FileBrowserCodeViewer = () => {
     });
   };
 
-  const handleSave = async () => {
-    if (selectedFile && fileContent) {
+  const saveFile = async (content) => {
+    if (currentFileHandle && content) {
       try {
-        const blob = new Blob([fileContent], { type: 'text/plain' });
-        const fileHandle = await window.showSaveFilePicker({
-          suggestedName: selectedFile,
-        });
-        const writable = await fileHandle.createWritable();
-        await writable.write(blob);
+        const writable = await currentFileHandle.createWritable();
+        await writable.write(content);
         await writable.close();
         console.log('File saved successfully');
       } catch (error) {
@@ -132,12 +132,30 @@ const FileBrowserCodeViewer = () => {
     }
   };
 
+  const debouncedSave = useCallback(
+    debounce((content) => {
+      if (isAutoSaveEnabled) {
+        saveFile(content);
+      }
+    }, 1000),
+    [currentFileHandle, isAutoSaveEnabled]
+  );
+
+  const handleContentChange = (value) => {
+    setFileContent(value);
+    debouncedSave(value);
+  };
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'vs-dark' ? 'vs-light' : 'vs-dark');
   };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(prev => !prev);
+  };
+
+  const toggleAutoSave = () => {
+    setIsAutoSaveEnabled(prev => !prev);
   };
 
   return (
@@ -170,7 +188,7 @@ const FileBrowserCodeViewer = () => {
                 <div className="text-lg font-bold">{selectedFile}</div>
                 <div className="space-x-2">
                   <button
-                    onClick={handleSave}
+                    onClick={() => saveFile(fileContent)}
                     className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600 transition-colors"
                   >
                     <FiSave />
@@ -181,13 +199,21 @@ const FileBrowserCodeViewer = () => {
                   >
                     <FiRefreshCw />
                   </button>
+                  <button
+                    onClick={toggleAutoSave}
+                    className={`py-1 px-3 rounded transition-colors ${
+                      isAutoSaveEnabled ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-500 hover:bg-gray-600'
+                    }`}
+                  >
+                    Auto-Save: {isAutoSaveEnabled ? 'ON' : 'OFF'}
+                  </button>
                 </div>
               </div>
               <Editor
                 height="100%"
                 language={language}
                 value={fileContent}
-                onChange={(value) => setFileContent(value)}
+                onChange={handleContentChange}
                 theme={theme}
                 options={{
                   minimap: { enabled: false },
@@ -208,17 +234,7 @@ const FileBrowserCodeViewer = () => {
         </div>
       </div>
       <div className="h-1/4 bg-black">
-        {/* <button
-          onClick={() => setIsCLIOpen(!isCLIOpen)}
-          className="flex items-center space-x-2 bg-green-500 text-white py-2 px-4 rounded mt-2 ml-2 hover:bg-green-600 transition-colors"
-        >
-          <FiTerminal />
-          <span>{isCLIOpen ? 'Hide CLI' : 'Show CLI'}</span>
-        </button> */}
-        {isCLIOpen && (
-            <TerminalCustome/>
-          // </div>
-        )}
+        {isCLIOpen && <TerminalCustome />}
       </div>
     </div>
   );
