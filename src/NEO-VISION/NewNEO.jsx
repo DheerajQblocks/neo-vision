@@ -32,7 +32,7 @@ const customToastStyle = {
   },
 };
 
-const ChatMessage = ({ content, isUser, onActionClick, isAudio }) => {
+const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab }) => {
   console.log("is audio", isAudio)
   console.log("content isUser onActionClick", content, isUser, onActionClick)
   const renderActions = (actions) => {
@@ -99,7 +99,9 @@ const ChatMessage = ({ content, isUser, onActionClick, isAudio }) => {
           isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"
         } max-w-[80%]`}
       >
-        {content && isAudio != true ? <ArtifactViewer content={content} /> : content}
+        {content && isAudio != true ? (
+          activeTab === "Artifact Viewer" ? <ArtifactViewer content={content} /> : content
+        ) : content}
       </div>
     </div>
   );
@@ -509,6 +511,7 @@ const handleActionClick = async (actionText) => {
                 isUser={message.isUser}
                 isAudio={message?.isAudio}
                 onActionClick={handleActionClick}
+                activeTab={activeTab} // Pass activeTab to ChatMessage
               />
             ))}
             {isThinking && <ThinkingIndicator />}
@@ -580,7 +583,7 @@ const handleActionClick = async (actionText) => {
           </div>
 
           <div className="bg-[#141324] mt-4 p-6 h-[calc(100%-4rem)] overflow-auto rounded-xl">
-            {activeTab === "Artifact Viewer" && <ArtifactViewer content={""} />}
+            {activeTab === "Artifact Viewer" && tabContent}
             {activeTab === "File Explorer" && <FileBrowserCodeViewer />}
             {activeTab === "Monitor" && tabContent}
           </div>

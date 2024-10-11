@@ -401,6 +401,13 @@ if __name__ == "__main__":
     input: "test",
     output: "```Here is the code to test your deployed model```",
     outputDelay: 1000, // 1 second delay before showing output
+    action: (onComplete) => {
+      setActiveTab("Artifact Viewer");
+      setTabContent(
+        <ArtifactViewer content="https://png.pngtree.com/thumb_back/fw800/background/20230817/pngtree-lotus-flower-jpg-pink-lotus-flower-image_13023952.jpg" />
+      );
+      setTimeout(onComplete, 2000);
+    },
     actionDelay: 2000, // 2 seconds delay before starting action
     followUp: "Keep your API key secret and don't share it with anyone.",
     followUpDelay: 1500, // 1.5 seconds delay before showing followUp
