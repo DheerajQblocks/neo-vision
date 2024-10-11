@@ -4,11 +4,11 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Markdown from 'react-markdown';
 
 const ArtifactViewer = ({ content }) => {
-  if (content.startsWith('```') && content.endsWith('```')) {
+  if (content.startsWith('`') && content.endsWith('`')) {
     // Extract code block
-    const code = content.slice(3, -3).trim();
+    const code = content.slice(1, -1).trim();
     return (
-      <SyntaxHighlighter language="javascript" style={vscDarkPlus}>
+      <SyntaxHighlighter language="python" style={vscDarkPlus}>
         {code}
       </SyntaxHighlighter>
     );

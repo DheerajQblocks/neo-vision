@@ -398,8 +398,8 @@ if __name__ == "__main__":
     followUpDelay: 1500, // 1.5 seconds delay before showing followUp
   },
   {
-    input: "test",
-    output: "```Here is the code to test your deployed model```",
+    input: "show image",
+    output: "Here is the image you requested",
     outputDelay: 1000, // 1 second delay before showing output
     action: (onComplete) => {
       setActiveTab("Artifact Viewer");
@@ -409,16 +409,21 @@ if __name__ == "__main__":
       setTimeout(onComplete, 2000);
     },
     actionDelay: 2000, // 2 seconds delay before starting action
-    followUp: "Keep your API key secret and don't share it with anyone.",
-    followUpDelay: 1500, // 1.5 seconds delay before showing followUp
   },
   {
-    input: "test image",
-    output: "https://png.pngtree.com/thumb_back/fw800/background/20230817/pngtree-lotus-flower-jpg-pink-lotus-flower-image_13023952.jpg",
+    input: "show code",
+    output: "Here is the code you requested",
     outputDelay: 1000, // 1 second delay before showing output
+    action: (onComplete) => {
+      setActiveTab("Artifact Viewer");
+      setTabContent(<ArtifactViewer content={`
+        import pyaudio
+        import wave
+        import requests
+        import simpleaudio as sa`} />);
+      setTimeout(onComplete, 2000);
+    },
     actionDelay: 2000, // 2 seconds delay before starting action
-    followUp: "Keep your API key secret and don't share it with anyone.",
-    followUpDelay: 1500, // 1.5 seconds delay before showing followUp
   },
   
 ];
