@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Editor from '@monaco-editor/react';
+import TerminalCustome from './TerminalCustome'; // Import the TerminalCustome component
 
 const FileBrowserCodeViewer = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileContent, setFileContent] = useState('');
   const [fileTree, setFileTree] = useState([]);
   const [expandedDirs, setExpandedDirs] = useState(new Set());
+  const [isCLIOpen, setIsCLIOpen] = useState(false); // State to manage CLI visibility
 
   const readDirectory = async (directoryHandle) => {
     const files = [];
@@ -89,6 +91,12 @@ const FileBrowserCodeViewer = () => {
           Open Directory
         </button>
         <div>{renderFileTree(fileTree)}</div>
+        <button
+          onClick={() => setIsCLIOpen(!isCLIOpen)} // Toggle CLI visibility
+          className="bg-green-500 text-white py-2 px-4 rounded mt-4"
+        >
+          {isCLIOpen ? 'Hide CLI' : 'Show CLI'}
+        </button>
       </div>
       <div className="w-3/4 p-2">
         {selectedFile ? (
@@ -101,6 +109,7 @@ const FileBrowserCodeViewer = () => {
         ) : (
           <div>Select a file to view/edit</div>
         )}
+        {isCLIOpen && <TerminalCustome />} {/* Conditionally render TerminalCustome */}
       </div>
     </div>
   );
