@@ -14,6 +14,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import Markdown from 'react-markdown'
 import TerminalCustome from "../artifact/TerminalCustome";
 import FileBrowserCodeViewer from "../artifact/FileBrowserCodeViewer";
+import ArtifactViewer from '../artifact/ArtifactViewer';
 
 
 
@@ -98,7 +99,7 @@ const ChatMessage = ({ content, isUser, onActionClick, isAudio }) => {
           isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"
         } max-w-[80%]`}
       >
-        {content && isAudio != true ? renderContent() : content}
+        {content && isAudio != true ? <ArtifactViewer content={content} /> : content}
       </div>
     </div>
   );
@@ -559,9 +560,9 @@ const handleActionClick = async (actionText) => {
         >
           <div className="flex justify-center items-center p-1 bg-[#181729] rounded-xl">
             {[
-              { name: "Code", icon: Code },
+              { name: "CLI", icon: Code },
               { name: "Monitor", icon: ChartNoAxesCombined },
-              { name: "Browse", icon: Monitor },
+              { name: "File Explorer", icon: Monitor },
             ].map(({ name, icon: Icon }) => (
               <button
                 key={name}
@@ -579,8 +580,8 @@ const handleActionClick = async (actionText) => {
           </div>
 
           <div className="bg-[#141324] mt-4 p-6 h-[calc(100%-4rem)] overflow-auto rounded-xl">
-            {activeTab === "Code" && <TerminalCustome />}
-            {activeTab === "Browse" && <FileBrowserCodeViewer />}
+            {activeTab === "CLI" && <TerminalCustome />}
+            {activeTab === "File Explorer" && <FileBrowserCodeViewer />}
             {activeTab === "Monitor" && tabContent}
           </div>
         </div>

@@ -8,6 +8,7 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "./NewNEO.css";
 import { toast } from "react-hot-toast";
 import { showCustomToast } from "./NewNEO";
+import ArtifactViewer from '../artifact/ArtifactViewer';
 
 // eslint-disable-next-line react/prop-types
 const CodeTab = ({ code, language = "python", onComplete }) => {
@@ -396,4 +397,21 @@ if __name__ == "__main__":
     followUp: "Keep your API key secret and don't share it with anyone.",
     followUpDelay: 1500, // 1.5 seconds delay before showing followUp
   },
+  {
+    input: "test",
+    output: "```Here is the code to test your deployed model```",
+    outputDelay: 1000, // 1 second delay before showing output
+    actionDelay: 2000, // 2 seconds delay before starting action
+    followUp: "Keep your API key secret and don't share it with anyone.",
+    followUpDelay: 1500, // 1.5 seconds delay before showing followUp
+  },
+  {
+    input: "test image",
+    output: "https://png.pngtree.com/thumb_back/fw800/background/20230817/pngtree-lotus-flower-jpg-pink-lotus-flower-image_13023952.jpg",
+    outputDelay: 1000, // 1 second delay before showing output
+    actionDelay: 2000, // 2 seconds delay before starting action
+    followUp: "Keep your API key secret and don't share it with anyone.",
+    followUpDelay: 1500, // 1.5 seconds delay before showing followUp
+  },
+  
 ];
