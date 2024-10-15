@@ -157,7 +157,7 @@ const NewNEO = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [tabContent, setTabContent] = useState(null);
   const chatEndRef = useRef(null);
-  const [chatWidth, setChatWidth] = useState(60);
+  const [chatWidth, setChatWidth] = useState(40);
   const resizeRef = useRef(null);
   const [prewrittenConversation, setPrewrittenConversation] = useState([]);
   const [isTypingComplete, setIsTypingComplete] = useState(true);
