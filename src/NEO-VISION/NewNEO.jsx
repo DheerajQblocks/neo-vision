@@ -565,7 +565,7 @@ const handleActionClick = async (actionText) => {
             {[
               { name: "Artifact Viewer", icon: Code },
               { name: "Monitor", icon: ChartNoAxesCombined },
-              { name: "File Explorer", icon: Monitor },
+              { name: "VSCode", icon: Monitor }, // Changed "File Explorer" to "VSCode"
             ].map(({ name, icon: Icon }) => (
               <button
                 key={name}
@@ -582,9 +582,15 @@ const handleActionClick = async (actionText) => {
             ))}
           </div>
 
-          <div className="bg-[#141324] mt-4 p-6 h-[calc(100%-4rem)] overflow-auto rounded-xl">
+          <div className="bg-[#141324] mt-4  h-[calc(100%-4rem)] overflow-auto rounded-xl">
             {activeTab === "Artifact Viewer" && tabContent}
-            {activeTab === "File Explorer" && <FileBrowserCodeViewer />}
+            {activeTab === "VSCode" && (
+              <iframe
+                src="https://codesandbox.io/p/sandbox/react-new?file=%2Fsrc%2FApp.js"
+                title="VSCode"
+                className="w-full h-full border-none"
+              />
+            )}
             {activeTab === "Monitor" && tabContent}
           </div>
         </div>
