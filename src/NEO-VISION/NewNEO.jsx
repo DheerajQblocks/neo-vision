@@ -586,7 +586,7 @@ const handleActionClick = async (actionText) => {
             {activeTab === "Artifact Viewer" && tabContent}
             {activeTab === "VSCode" && (
               <iframe
-                src="https://codesandbox.io/p/sandbox/react-new?file=%2Fsrc%2FApp.js"
+                src="https://8080-iznsmabew4db5ajbmf1my-b0b684e9.e2b.dev/?folder=/home/user"
                 title="VSCode"
                 className="w-full h-full border-none"
               />
