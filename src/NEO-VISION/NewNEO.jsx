@@ -657,7 +657,7 @@ const handleIframeLoad = () => {
         ></div>
 
         <div
-          className={`rounded-md overflow-hidden hidden ${
+          className={`rounded-md overflow-hidden ${
             isVSCodeFullScreen ? "fixed inset-0 z-50" : ""
           }`}
           style={{ width: isVSCodeFullScreen ? "100%" : `${100 - chatWidth}%` }}
