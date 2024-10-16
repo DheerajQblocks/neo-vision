@@ -561,7 +561,7 @@ const handleActionClick = async (actionText) => {
           className="rounded-xl overflow-hidden"
           style={{ width: `${100 - chatWidth}%` }}
         >
-          <div className="flex justify-center items-center p-1 bg-[#181729] rounded-xl">
+          <div className="artifact-section flex justify-center items-center p-1 bg-[#181729] rounded-xl">
             {[
               { name: "Artifact Viewer", icon: Code },
               { name: "Monitor", icon: ChartNoAxesCombined },
