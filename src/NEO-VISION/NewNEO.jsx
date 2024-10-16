@@ -6,6 +6,8 @@ import {
   Monitor,
   ChartNoAxesCombined,
   Square,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { getPrewrittenConversations } from "./GetPrewrittenConversations";
 import "./NewNEO.css";
@@ -167,6 +169,8 @@ const NewNEO = () => {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const [isThinking, setIsThinking] = useState(false);
+  const [isVSCodeFullScreen, setIsVSCodeFullScreen] = useState(false);
+  const [isVSCodeActive, setIsVSCodeActive] = useState(false);
 
   useEffect(() => {
     setPrewrittenConversation(
@@ -475,6 +479,28 @@ const handleActionClick = async (actionText) => {
   }
 };
 
+const handleTabClick = (tabName) => {
+  setActiveTab(tabName);
+  setIsVSCodeActive(tabName === "VSCode");
+};
+
+const toggleVSCodeFullScreen = () => {
+  setIsVSCodeFullScreen(!isVSCodeFullScreen);
+};
+
+useEffect(() => {
+  const handleEscapeKey = (event) => {
+    if (event.key === "Escape" && isVSCodeFullScreen) {
+      setIsVSCodeFullScreen(false);
+    }
+  };
+
+  document.addEventListener("keydown", handleEscapeKey);
+
+  return () => {
+    document.removeEventListener("keydown", handleEscapeKey);
+  };
+}, [isVSCodeFullScreen]);
 
   return (
     <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
@@ -494,6 +520,28 @@ const handleActionClick = async (actionText) => {
           />
           <span className="font-semibold uppercase">Neo</span>
         </div>
+        {isVSCodeActive && (
+          <div className="artifact-section flex justify-center items-center">
+            {[
+              { name: "Artifact Viewer", icon: Code },
+              { name: "Monitor", icon: ChartNoAxesCombined },
+              { name: "VSCode", icon: Monitor },
+            ].map(({ name, icon: Icon }) => (
+              <button
+                key={name}
+                className={`px-4 py-2 border-none flex items-center justify-center space-x-1 ${
+                  activeTab === name
+                    ? "bg-[#2d2d44] shadow-xl rounded-xl"
+                    : "bg-transparent"
+                }`}
+                onClick={() => handleTabClick(name)}
+              >
+                <Icon size={16} />
+                <span>{name}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <div className="flex space-x-2">
           <img src="/images/neo-vision/btn-navbar.svg" alt="Neo Logo" />
         </div>
@@ -558,38 +606,54 @@ const handleActionClick = async (actionText) => {
         ></div>
 
         <div
-          className="rounded-xl overflow-hidden"
-          style={{ width: `${100 - chatWidth}%` }}
+          className={`rounded-xl overflow-hidden ${
+            isVSCodeFullScreen ? "fixed inset-0 z-50" : ""
+          }`}
+          style={{ width: isVSCodeFullScreen ? "100%" : `${100 - chatWidth}%` }}
         >
-          <div className="artifact-section flex justify-center items-center p-1 bg-[#181729] rounded-xl">
-            {[
-              { name: "Artifact Viewer", icon: Code },
-              { name: "Monitor", icon: ChartNoAxesCombined },
-              { name: "VSCode", icon: Monitor }, // Changed "File Explorer" to "VSCode"
-            ].map(({ name, icon: Icon }) => (
-              <button
-                key={name}
-                className={`px-6 py-4 w-full border-none flex items-center justify-center space-x-1 ${
-                  activeTab === name
-                    ? "bg-[#2d2d44] shadow-xl rounded-xl"
-                    : "bg-[#181729]"
-                }`}
-                onClick={() => setActiveTab(name)}
-              >
-                <Icon size={16} />
-                <span>{name}</span>
-              </button>
-            ))}
-          </div>
+          {!isVSCodeActive && (
+            <div className="artifact-section flex justify-center items-center p-1 bg-[#181729] rounded-xl">
+              {[
+                { name: "Artifact Viewer", icon: Code },
+                { name: "Monitor", icon: ChartNoAxesCombined },
+                { name: "VSCode", icon: Monitor },
+              ].map(({ name, icon: Icon }) => (
+                <button
+                  key={name}
+                  className={`px-6 py-4 w-full border-none flex items-center justify-center space-x-1 ${
+                    activeTab === name
+                      ? "bg-[#2d2d44] shadow-xl rounded-xl"
+                      : "bg-[#181729]"
+                  }`}
+                  onClick={() => handleTabClick(name)}
+                >
+                  <Icon size={16} />
+                  <span>{name}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
-          <div className="bg-[#141324] mt-4  h-[calc(100%-4rem)] overflow-auto rounded-xl">
+          <div className="bg-[#141324] mt-4 h-[calc(100%-0rem)] overflow-auto rounded-xl relative">
             {activeTab === "Artifact Viewer" && tabContent}
             {activeTab === "VSCode" && (
-              <iframe
-                src="https://8080-ir9hybcol1dr7h2isoh37-b0b684e9.e2b.dev/?folder=/home/user"
-                title="VSCode"
-                className="w-full h-full border-none"
-              />
+              <>
+                <button
+                  className="absolute top-2 right-2 z-10 bg-[#2d2d44] p-2 rounded-full"
+                  onClick={toggleVSCodeFullScreen}
+                >
+                  {isVSCodeFullScreen ? (
+                    <Minimize2 size={20} />
+                  ) : (
+                    <Maximize2 size={20} />
+                  )}
+                </button>
+                <iframe
+                  src="https://8080-ir9hybcol1dr7h2isoh37-b0b684e9.e2b.dev/?folder=/home/user"
+                  title="VSCode"
+                  className="w-full h-full border-none"
+                />
+              </>
             )}
             {activeTab === "Monitor" && tabContent}
           </div>
