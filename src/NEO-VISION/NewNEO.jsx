@@ -18,6 +18,7 @@ import Markdown from 'react-markdown'
 import TerminalCustome from "../artifact/TerminalCustome";
 import FileBrowserCodeViewer from "../artifact/FileBrowserCodeViewer";
 import ArtifactViewer from '../artifact/ArtifactViewer';
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -173,6 +174,9 @@ const NewNEO = () => {
   const [isVSCodeFullScreen, setIsVSCodeFullScreen] = useState(false);
   const [isVSCodeActive, setIsVSCodeActive] = useState(false);
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+  const [threadId, setThreadId] = useState(null);
+  const [isWaitingForUserInput, setIsWaitingForUserInput] = useState(false);
+  const [lastEventId, setLastEventId] = useState(null);
 
   useEffect(() => {
     setPrewrittenConversation(
@@ -229,109 +233,170 @@ const NewNEO = () => {
     if (callback) setTimeout(callback, 500);
   };
 
-  // const fetchChatResponse = async (query) => {
-  //   const token = import.meta.env.VITE_APP_API_TOKEN; // Ensure your token is stored in .env
-  //   setIsThinking(true); // Show loading indicator
+  // Add this to your existing useEffect or create a new one
+  useEffect(() => {
+    let isMounted = true;
+    const pollEvents = async () => {
+      if (threadId && isMounted) {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/events/${threadId}`);
+          if (response.ok) {
+            const events = await response.json();
+            if (isMounted) {
+              updateChatHistory(events);
+              // Schedule the next poll after processing this response
+              setTimeout(pollEvents, 1000);
+            }
+          }
+        } catch (error) {
+          console.error("Error polling events:", error);
+          // If there's an error, wait before trying again
+          if (isMounted) {
+            setTimeout(pollEvents, 5000);
+          }
+        }
+      }
+    };
 
-  //   // Prepare the full conversation history with labels
-  //   const fullConversation = chatHistory.map(msg => 
-  //     `${msg.isUser ? "User: " : "Assistant: "} ${msg.content}`
-  //   ).join("\n");
+    if (threadId) {
+      pollEvents();
+    }
 
-  //   // Include the current user query in the conversation
-  //   const completeQuery = `${fullConversation}\nUser: ${query}`;
+    return () => {
+      isMounted = false;
+    };
+  }, [threadId]);
 
-  //   const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/chat?query=${encodeURIComponent(completeQuery)}&token=${token}`, {
-  //     method: 'GET',
-  //     headers: {
-  //       'Accept-Language': 'en-US,en;q=0.9',
-  //       'Authorization': `Bearer ${token}`,
-  //       'accept': 'application/json',
-  //     },
-  //   });
+  const updateChatHistory = (events) => {
+    // Filter out events we've already processed
+    const newEvents = events.filter(event => !lastEventId || event.id > lastEventId);
+    if (newEvents.length > 0) {
+      const newHistory = newEvents.map(event => ({
+        content: event.content,
+        isUser: event.name === "Admin"
+      }));
+      setChatHistory(prev => [...prev, ...newHistory]);
+      // Update the last event ID we've processed
+      setLastEventId(newEvents[newEvents.length - 1].id);
+    }
+    // Check if user input is required after updating chat history
+    checkUserInputRequired();
+  };
 
-  //   if (response.ok) {
-  //     const data = await response.json();
-  //     const assistantMessages = data.filter(msg => msg.name === "Monsterapi_assistant");
-  //     const lastMessage = assistantMessages[assistantMessages.length - 1]?.content; // Get the last message
+  const initChat = async (message) => {
+    const newThreadId = uuidv4();
+    setThreadId(newThreadId);
+    setIsThinking(true);
+    setLastEventId(null); // Reset lastEventId when starting a new chat
 
-  //     if (lastMessage) {
-  //       await simulateTyping(lastMessage); // Call simulateTyping to show the response with typing effect
-  //     }
-  //   } else {
-  //     console.error("Error fetching chat response:", response.statusText);
-  //   }
-  //   setIsThinking(false); // Hide loading indicator
-  // };
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/init-chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          threadId: newThreadId,
+          message: message
+        }),
+      });
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (inputValue.trim() === "" || isTyping) return;
+      if (!response.ok) {
+        throw new Error('Failed to initialize chat');
+      }
 
-  //   console.log("User input:", inputValue);
-  //   setChatHistory((prev) => [...prev, { content: inputValue, isUser: true }]);
-  //   setInputValue("");
+      // The response is handled by the polling mechanism
+    } catch (error) {
+      console.error("Error initializing chat:", error);
+      showCustomToast("Failed to start the conversation", "error");
+    } finally {
+      setIsThinking(false);
+    }
+  };
 
-  //   // Call the API with the user input
-  //   // await fetchChatResponse(inputValue);
-  // };
+  const sendUserInput = async (input) => {
+    if (!threadId) {
+      console.error("No active thread");
+      return;
+    }
+
+    setIsThinking(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/send-user-input/${threadId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ input }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send user input');
+      }
+
+      // The response is handled by the polling mechanism
+    } catch (error) {
+      console.error("Error sending user input:", error);
+      showCustomToast("Failed to send your message", "error");
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
+  const checkUserInputRequired = async () => {
+    if (!threadId) return false;
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/user-input-required/${threadId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setIsWaitingForUserInput(data.userInputRequired);
+        return data.userInputRequired;
+      }
+    } catch (error) {
+      console.error("Error checking user input requirement:", error);
+    }
+    return false;
+  };
+
+  const terminateThread = async () => {
+    if (!threadId) return;
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/terminate/${threadId}`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        setThreadId(null);
+        setChatHistory([]);
+        showCustomToast("Conversation ended", "success");
+      } else {
+        throw new Error('Failed to terminate thread');
+      }
+    } catch (error) {
+      console.error("Error terminating thread:", error);
+      showCustomToast("Failed to end the conversation", "error");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (inputValue.trim() === "" || isTyping) return;
+    // if (inputValue.trim() === "" || isTyping) return;
 
-    console.log("User input:", inputValue);
-    setChatHistory((prev) => [...prev, { content: inputValue, isUser: true }]);
+    const userMessage = inputValue;
     setInputValue("");
+    setChatHistory(prev => [...prev, { content: userMessage, isUser: true }]);
 
-    const currentConversation = prewrittenConversation.find(
-      (conv) => conv.input.toLowerCase() === inputValue.toLowerCase()
-    );
-
-    console.log("Matched conversation:", currentConversation);
-
-    if (currentConversation) {
-      // Output
-      if (currentConversation.outputDelay) {
-        setIsThinking(true);
-        await new Promise((resolve) =>
-          setTimeout(resolve, currentConversation.outputDelay)
-        );
-        setIsThinking(false);
-      }
-      await simulateTyping(currentConversation.output);
-
-      // Action
-      if (currentConversation.action) {
-        if (currentConversation.actionDelay) {
-          setIsThinking(true);
-          await new Promise((resolve) =>
-            setTimeout(resolve, currentConversation.actionDelay)
-          );
-          setIsThinking(false);
-        }
-        await new Promise((resolve) => currentConversation.action(resolve));
-      }
-
-      // FollowUp
-      if (currentConversation.followUp) {
-        if (currentConversation.followUpDelay) {
-          setIsThinking(true);
-          await new Promise((resolve) =>
-            setTimeout(resolve, currentConversation.followUpDelay)
-          );
-          setIsThinking(false);
-        }
-        await simulateTyping(currentConversation.followUp);
-      }
+    if (!threadId) {
+      await initChat(userMessage);
     } else {
-      console.log("No matching conversation found");
-      setIsThinking(true);
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Default delay
-      setIsThinking(false);
-      await simulateTyping(
-        "I'm sorry, I don't have a pre-written response for that input."
-      );
+      await sendUserInput(userMessage);
     }
+
+    // Check if user input is required after sending a message
+    await checkUserInputRequired();
   };
 
   const handleResize = (e) => {
@@ -573,7 +638,7 @@ const handleIframeLoad = () => {
           </div>
           <form onSubmit={handleSubmit} className="p-4">
             <div className="flex items-center bg-[#2D2D44] rounded-full py-1 overflow-hidden">
-              <button
+              {/* <button
                 type="button"
                 className="bg-[#4A4A6A] rounded-full border-none p-3 ml-1 hidden"
                 onClick={isRecording ? stopRecording : startRecording}
@@ -584,20 +649,20 @@ const handleIframeLoad = () => {
                   <Mic size={20} className="text-white" />
                 )}
               </button>
-              {isRecording && <SoundWave />}
+              {isRecording && <SoundWave />} */}
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder={isRecording ? "Recording..." : "Write prompt"}
+                placeholder={isWaitingForUserInput ? "Your input is required..." : "Write prompt"}
                 className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
-                disabled={isTyping || isRecording}
+                // disabled={isTyping || !isWaitingForUserInput}
                 ref={inputRef}
               />
               <button
                 type="submit"
                 className="bg-[#4A4A6A] rounded-full border-none p-3 mr-1"
-                disabled={isTyping || isRecording}
+                // disabled={isTyping || !isWaitingForUserInput}
               >
                 <Send size={20} className="text-white" />
               </button>
