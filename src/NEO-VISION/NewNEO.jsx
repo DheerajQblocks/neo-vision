@@ -8,6 +8,7 @@ import {
   Square,
   Maximize2,
   Minimize2,
+  Loader,
 } from "lucide-react";
 import { getPrewrittenConversations } from "./GetPrewrittenConversations";
 import "./NewNEO.css";
@@ -171,6 +172,7 @@ const NewNEO = () => {
   const [isThinking, setIsThinking] = useState(false);
   const [isVSCodeFullScreen, setIsVSCodeFullScreen] = useState(false);
   const [isVSCodeActive, setIsVSCodeActive] = useState(false);
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
 
   useEffect(() => {
     setPrewrittenConversation(
@@ -502,6 +504,10 @@ useEffect(() => {
   };
 }, [isVSCodeFullScreen]);
 
+const handleIframeLoad = () => {
+  setIsIframeLoaded(true);
+};
+
   return (
     <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
       <Toaster
@@ -634,7 +640,7 @@ useEffect(() => {
             </div>
           )}
 
-          <div className="bg-[#141324] mt-4 h-[calc(100%-0rem)] overflow-auto rounded-xl relative">
+          <div className={`bg-[#141324] ${activeTab === "VSCode" ? "h-full" : "mt-4 h-[calc(100%-4rem)]"} overflow-auto rounded-xl relative`}>
             {activeTab === "Artifact Viewer" && tabContent}
             {activeTab === "VSCode" && (
               <>
@@ -648,10 +654,17 @@ useEffect(() => {
                     <Maximize2 size={20} />
                   )}
                 </button>
+                {!isIframeLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#141324]">
+                    <Loader size={40} className="animate-spin text-purple-500" />
+                  </div>
+                )}
                 <iframe
-                  src="https://8080-ir9hybcol1dr7h2isoh37-b0b684e9.e2b.dev/?folder=/home/user"
+                  src="https://8080-i0mimhhk17j5q5grbwlpo-b0b684e9.e2b.dev/?folder=/home/user"
                   title="VSCode"
                   className="w-full h-full border-none"
+                  onLoad={handleIframeLoad}
+                  style={{ display: isIframeLoaded ? 'block' : 'none' }}
                 />
               </>
             )}
