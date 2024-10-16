@@ -161,7 +161,7 @@ const NewNEO = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [tabContent, setTabContent] = useState(null);
   const chatEndRef = useRef(null);
-  const [chatWidth, setChatWidth] = useState(35);
+  const [chatWidth, setChatWidth] = useState(100);
   const resizeRef = useRef(null);
   const [prewrittenConversation, setPrewrittenConversation] = useState([]);
   const [isTypingComplete, setIsTypingComplete] = useState(true);
@@ -175,8 +175,7 @@ const NewNEO = () => {
   const [isVSCodeActive, setIsVSCodeActive] = useState(false);
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
   const [threadId, setThreadId] = useState(null);
-  const [isWaitingForUserInput, setIsWaitingForUserInput] = useState(false);
-  const [lastEventId, setLastEventId] = useState(null);
+  const [lastEventIndex, setLastEventIndex] = useState(-1);
 
   useEffect(() => {
     setPrewrittenConversation(
@@ -269,25 +268,18 @@ const NewNEO = () => {
 
   const updateChatHistory = (events) => {
     // Filter out events we've already processed
-    const newEvents = events.filter(event => !lastEventId || event.id > lastEventId);
+    const newEvents = events.slice(lastEventIndex + 1);
     if (newEvents.length > 0) {
-      const newHistory = newEvents.map(event => ({
-        content: event.content,
-        isUser: event.name === "Admin"
-      }));
-      setChatHistory(prev => [...prev, ...newHistory]);
-      // Update the last event ID we've processed
-      setLastEventId(newEvents[newEvents.length - 1].id);
+      setChatHistory(events); // Set the entire events array as the chat history
+      setLastEventIndex(events.length - 1);
     }
-    // Check if user input is required after updating chat history
-    checkUserInputRequired();
   };
 
   const initChat = async (message) => {
     const newThreadId = uuidv4();
     setThreadId(newThreadId);
     setIsThinking(true);
-    setLastEventId(null); // Reset lastEventId when starting a new chat
+    setLastEventIndex(-1); // Reset lastEventIndex when starting a new chat
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/init-chat`, {
@@ -311,6 +303,22 @@ const NewNEO = () => {
       showCustomToast("Failed to start the conversation", "error");
     } finally {
       setIsThinking(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (inputValue.trim() === "") return;
+
+    const userMessage = inputValue;
+    setInputValue("");
+    // Don't add user message to chat history here
+    // It will be added when received from the server
+
+    if (!threadId) {
+      await initChat(userMessage);
+    } else {
+      await sendUserInput(userMessage);
     }
   };
 
@@ -379,24 +387,6 @@ const NewNEO = () => {
       console.error("Error terminating thread:", error);
       showCustomToast("Failed to end the conversation", "error");
     }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // if (inputValue.trim() === "" || isTyping) return;
-
-    const userMessage = inputValue;
-    setInputValue("");
-    setChatHistory(prev => [...prev, { content: userMessage, isUser: true }]);
-
-    if (!threadId) {
-      await initChat(userMessage);
-    } else {
-      await sendUserInput(userMessage);
-    }
-
-    // Check if user input is required after sending a message
-    await checkUserInputRequired();
   };
 
   const handleResize = (e) => {
@@ -627,10 +617,10 @@ const handleIframeLoad = () => {
               <ChatMessage
                 key={index}
                 content={message.content}
-                isUser={message.isUser}
+                isUser={message.role === "user" && message.name === "Admin"}
                 isAudio={message?.isAudio}
                 onActionClick={handleActionClick}
-                activeTab={activeTab} // Pass activeTab to ChatMessage
+                activeTab={activeTab}
               />
             ))}
             {isThinking && <ThinkingIndicator />}
@@ -654,7 +644,7 @@ const handleIframeLoad = () => {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder={isWaitingForUserInput ? "Your input is required..." : "Write prompt"}
+                // placeholder={isWaitingForUserInput ? "Your input is required..." : "Write prompt"}
                 className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
                 // disabled={isTyping || !isWaitingForUserInput}
                 ref={inputRef}
@@ -677,7 +667,7 @@ const handleIframeLoad = () => {
         ></div>
 
         <div
-          className={`rounded-md overflow-hidden ${
+          className={`rounded-md overflow-hidden hidden ${
             isVSCodeFullScreen ? "fixed inset-0 z-50" : ""
           }`}
           style={{ width: isVSCodeFullScreen ? "100%" : `${100 - chatWidth}%` }}
