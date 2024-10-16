@@ -176,6 +176,7 @@ const NewNEO = () => {
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
   const [threadId, setThreadId] = useState(null);
   const [lastEventIndex, setLastEventIndex] = useState(-1);
+  const [isUserInputRequired, setIsUserInputRequired] = useState(true);
 
   useEffect(() => {
     setPrewrittenConversation(
@@ -243,6 +244,7 @@ const NewNEO = () => {
             const events = await response.json();
             if (isMounted) {
               updateChatHistory(events);
+              await checkUserInputRequired();
               // Schedule the next poll after processing this response
               setTimeout(pollEvents, 1000);
             }
@@ -353,19 +355,18 @@ const NewNEO = () => {
   };
 
   const checkUserInputRequired = async () => {
-    if (!threadId) return false;
+    if (!threadId) return;
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/user-input-required/${threadId}`);
       if (response.ok) {
         const data = await response.json();
-        setIsWaitingForUserInput(data.userInputRequired);
-        return data.userInputRequired;
+        
+        setIsUserInputRequired(data?.user_input_required);
       }
     } catch (error) {
       console.error("Error checking user input requirement:", error);
     }
-    return false;
   };
 
   const terminateThread = async () => {
@@ -623,36 +624,25 @@ const handleIframeLoad = () => {
                 activeTab={activeTab}
               />
             ))}
-            {isThinking && <ThinkingIndicator />}
+            {threadId && !isUserInputRequired && <ThinkingIndicator />}
             <div ref={chatEndRef} />
           </div>
           <form onSubmit={handleSubmit} className="p-4">
             <div className="flex items-center bg-[#2D2D44] rounded-full py-1 overflow-hidden">
-              {/* <button
-                type="button"
-                className="bg-[#4A4A6A] rounded-full border-none p-3 ml-1 hidden"
-                onClick={isRecording ? stopRecording : startRecording}
-              >
-                {isRecording ? (
-                  <Square size={20} className="text-white" />
-                ) : (
-                  <Mic size={20} className="text-white" />
-                )}
-              </button>
-              {isRecording && <SoundWave />} */}
+              {console.log("isUserInputRequired",(isUserInputRequired))}
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                // placeholder={isWaitingForUserInput ? "Your input is required..." : "Write prompt"}
+                placeholder={isUserInputRequired ? "Write prompt" : "Waiting for response..."}
                 className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
-                // disabled={isTyping || !isWaitingForUserInput}
+                disabled={isUserInputRequired === true ? false : true}
                 ref={inputRef}
               />
               <button
                 type="submit"
                 className="bg-[#4A4A6A] rounded-full border-none p-3 mr-1"
-                // disabled={isTyping || !isWaitingForUserInput}
+                disabled={isUserInputRequired === true ? false : true}
               >
                 <Send size={20} className="text-white" />
               </button>
