@@ -160,7 +160,7 @@ const NewNEO = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [tabContent, setTabContent] = useState(null);
   const chatEndRef = useRef(null);
-  const [chatWidth, setChatWidth] = useState(40);
+  const [chatWidth, setChatWidth] = useState(35);
   const resizeRef = useRef(null);
   const [prewrittenConversation, setPrewrittenConversation] = useState([]);
   const [isTypingComplete, setIsTypingComplete] = useState(true);
@@ -483,7 +483,7 @@ const handleActionClick = async (actionText) => {
 
 const handleTabClick = (tabName) => {
   setActiveTab(tabName);
-  setIsVSCodeActive(tabName === "VSCode");
+  setIsVSCodeActive(tabName === "File Explorer");
 };
 
 const toggleVSCodeFullScreen = () => {
@@ -531,7 +531,7 @@ const handleIframeLoad = () => {
             {[
               { name: "Artifact Viewer", icon: Code },
               { name: "Monitor", icon: ChartNoAxesCombined },
-              { name: "VSCode", icon: Monitor },
+              { name: "File Explorer", icon: Monitor },
             ].map(({ name, icon: Icon }) => (
               <button
                 key={name}
@@ -575,7 +575,7 @@ const handleIframeLoad = () => {
             <div className="flex items-center bg-[#2D2D44] rounded-full py-1 overflow-hidden">
               <button
                 type="button"
-                className="bg-[#4A4A6A] rounded-full border-none p-3 ml-1"
+                className="bg-[#4A4A6A] rounded-full border-none p-3 ml-1 hidden"
                 onClick={isRecording ? stopRecording : startRecording}
               >
                 {isRecording ? (
@@ -612,7 +612,7 @@ const handleIframeLoad = () => {
         ></div>
 
         <div
-          className={`rounded-xl overflow-hidden ${
+          className={`rounded-md overflow-hidden ${
             isVSCodeFullScreen ? "fixed inset-0 z-50" : ""
           }`}
           style={{ width: isVSCodeFullScreen ? "100%" : `${100 - chatWidth}%` }}
@@ -622,7 +622,7 @@ const handleIframeLoad = () => {
               {[
                 { name: "Artifact Viewer", icon: Code },
                 { name: "Monitor", icon: ChartNoAxesCombined },
-                { name: "VSCode", icon: Monitor },
+                { name: "File Explorer", icon: Monitor },
               ].map(({ name, icon: Icon }) => (
                 <button
                   key={name}
@@ -640,12 +640,12 @@ const handleIframeLoad = () => {
             </div>
           )}
 
-          <div className={`bg-[#141324] ${activeTab === "VSCode" ? "h-full" : "mt-4 h-[calc(100%-4rem)]"} overflow-auto rounded-xl relative`}>
+          <div className={`bg-[#141324] ${activeTab === "File Explorer" ? "h-full" : "mt-4 h-[calc(100%-4rem)]"} overflow-auto rounded-xl relative`}>
             {activeTab === "Artifact Viewer" && tabContent}
-            {activeTab === "VSCode" && (
+            {activeTab === "File Explorer" && (
               <>
                 <button
-                  className="absolute top-2 right-2 z-10 bg-[#2d2d44] p-2 rounded-full"
+                  className="absolute bottom-2 right-2 z-10 bg-[#2d2d44] p-2 rounded-full"
                   onClick={toggleVSCodeFullScreen}
                 >
                   {isVSCodeFullScreen ? (
@@ -661,7 +661,7 @@ const handleIframeLoad = () => {
                 )}
                 <iframe
                   src="https://8080-i0mimhhk17j5q5grbwlpo-b0b684e9.e2b.dev/?folder=/home/user"
-                  title="VSCode"
+                  title="File Explorer"
                   className="w-full h-full border-none"
                   onLoad={handleIframeLoad}
                   style={{ display: isIframeLoaded ? 'block' : 'none' }}
