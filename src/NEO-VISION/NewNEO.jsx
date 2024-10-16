@@ -164,7 +164,7 @@ const NewNEO = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [tabContent, setTabContent] = useState(null);
   const chatEndRef = useRef(null);
-  const [chatWidth, setChatWidth] = useState(100);
+  const [chatWidth, setChatWidth] = useState(40);
   const resizeRef = useRef(null);
   const [prewrittenConversation, setPrewrittenConversation] = useState([]);
   const [isTypingComplete, setIsTypingComplete] = useState(true);
@@ -689,7 +689,7 @@ const handleIframeLoad = () => {
           )}
 
           <div className={`bg-[#141324] ${activeTab === "File Explorer" ? "h-full" : "mt-4 h-[calc(100%-4rem)]"} overflow-auto rounded-xl relative`}>
-            {activeTab === "Artifact Viewer" && tabContent}
+            {activeTab === "Artifact Viewer" && <ArtifactViewer />}
             {activeTab === "File Explorer" && (
               <>
                 <button
