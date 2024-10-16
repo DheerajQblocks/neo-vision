@@ -77,25 +77,53 @@ const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab }) => 
 
   const renderContent = () => {
     if (typeof content === "string") {
-      const parts = content.split(/(\[action\].*?\[\/action\])/g);
-      const message = parts[0].trim();
-      const actions = parts
-        .slice(1)
-        .filter((part) => part.startsWith("[action]"));
-      if(!actions || actions.length === 0 ){
-        console.log("here markdown")
-        return <Markdown>{content}</Markdown>;
+      const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+      const parts = [];
+      let lastIndex = 0;
+      let match;
+
+      while ((match = codeBlockRegex.exec(content)) !== null) {
+        // Add text before code block
+        if (match.index > lastIndex) {
+          parts.push(
+            <Markdown key={lastIndex}>
+              {content.slice(lastIndex, match.index)}
+            </Markdown>
+          );
+        }
+
+        // Add code block
+        const language = match[1] || 'plaintext';
+        parts.push(
+          <ArtifactViewer
+            key={match.index}
+            content={match[2].trim()}
+            type="code"
+            language={language}
+          />
+        );
+
+        lastIndex = match.index + match[0].length;
       }
-      return (
-        <>
-          <p className="mb-2">{message}</p>
-          {actions.length > 0 && renderActions(actions)}
-        </>
-      );
+
+      // Add remaining text after last code block
+      if (lastIndex < content.length) {
+        parts.push(
+          <Markdown key={lastIndex}>
+            {content.slice(lastIndex)}
+          </Markdown>
+        );
+      }
+
+      return parts;
     } else if (content.role === "user" && content.name === "Executor") {
       // Handle Executor output
       return (
-        <ArtifactViewer content={content.content} />
+        <ArtifactViewer 
+          content={content.content} 
+          type="code" 
+          language="plaintext"
+        />
       );
     }
     // ... handle other content types if needed ...

@@ -64,11 +64,8 @@ const ArtifactViewer = ({ content, type = "image", language = "javascript" }) =>
                 style={vscDarkPlus}
                 customStyle={{ margin: 0, background: "transparent" }}
               >
-                {displayedCode}
+                {content}
               </SyntaxHighlighter>
-              {isTyping && (
-                <span className="inline-block w-2 h-5 bg-white ml-1 animate-pulse" />
-              )}
             </div>
           </div>
         </div>
