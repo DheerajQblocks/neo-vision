@@ -92,8 +92,13 @@ const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab }) => 
           {actions.length > 0 && renderActions(actions)}
         </>
       );
+    } else if (content.role === "user" && content.name === "Executor") {
+      // Handle Executor output
+      return (
+        <ArtifactViewer content={content.content} />
+      );
     }
-    
+    // ... handle other content types if needed ...
   };
 
   return (
@@ -103,9 +108,7 @@ const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab }) => 
           isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"
         } max-w-[80%]`}
       >
-        {content && isAudio != true ? (
-          activeTab === "Artifact Viewer" ? <ArtifactViewer content={content} /> : content
-        ) : content}
+        {renderContent()}
       </div>
     </div>
   );
