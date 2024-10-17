@@ -12,7 +12,6 @@ function Login() {
     try {
       setIsLoading(true);
       const response = await axios.post(`${import.meta.env.VITE_MONSTER_API_URL}/giveaway/direct-login`, {
-        id: import.meta.env.VITE_MONSTER_API_ID,
         email: email
       });
       console.log('login response', response?.data)
