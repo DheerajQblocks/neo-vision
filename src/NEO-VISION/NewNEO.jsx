@@ -297,7 +297,7 @@ const NewNEO = () => {
         body: JSON.stringify({
           threadId: newThreadId,
           message: message,
-          email: 'howtotech000@gmail.com'
+          token: localStorage.getItem('auth_token')
         }),
       });
 

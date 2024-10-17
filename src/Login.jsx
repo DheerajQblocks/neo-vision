@@ -16,7 +16,7 @@ function Login() {
       });
       console.log('login response', response?.data)
       if (response?.data?.type === 'success') {
-        localStorage.setItem('email', email);
+        localStorage.setItem('auth_token', response?.data?.token);
         window.location.href = '/';
       } else {
         alert('Login failed. Please try again.');

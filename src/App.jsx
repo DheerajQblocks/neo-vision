@@ -3,13 +3,13 @@ import Login from './Login';
 import NewNEO from "./NEO-VISION/NewNEO";
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem('email');
+  const isAuthenticated = !!localStorage.getItem('auth_token');
 
   return (
     <Router>
       <Routes>
-        {/* <Route path="/" element={ isAuthenticated ? <NewNEO /> : <Login />} /> */}
-        <Route path="/" element={<NewNEO />} />
+        <Route path="/" element={ isAuthenticated ? <NewNEO /> : <Login />} />
+        {/* <Route path="/" element={<NewNEO />} /> */}
         {/* <Route 
           path="/dashboard" 
           element={isAuthenticated ? <NewNEO /> : <Navigate to="/" />} 
