@@ -537,7 +537,7 @@ const NewNEO = () => {
             ))}
           </div>
         )}
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 hidden">
           <img src="/images/neo-vision/btn-navbar.svg" alt="Neo Logo" />
         </div>
       </nav>
@@ -610,8 +610,8 @@ const NewNEO = () => {
             <div className="artifact-section flex justify-center items-center p-1 bg-[#181729] rounded-xl">
               {[
                 { name: "Artifact Viewer", icon: Code },
-                { name: "Monitor", icon: ChartNoAxesCombined },
-                { name: "File Explorer", icon: Monitor },
+                // { name: "Monitor", icon: ChartNoAxesCombined },
+                // { name: "File Explorer", icon: Monitor },
               ].map(({ name, icon: Icon }) => (
                 <button
                   key={name}
