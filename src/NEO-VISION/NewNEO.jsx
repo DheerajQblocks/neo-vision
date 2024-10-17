@@ -9,6 +9,8 @@ import {
   Maximize2,
   Minimize2,
   Loader,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { getPrewrittenConversations } from "./GetPrewrittenConversations";
 import "./NewNEO.css";
@@ -169,6 +171,7 @@ const NewNEO = () => {
   let [isUserInputRequired, setIsUserInputRequired] = useState(false);
   const [artifactContent, setArtifactContent] = useState(null);
   let [firstTimeQuery, setFirstTimeQuery] = useState(true);
+  const [isArtifactVisible, setIsArtifactVisible] = useState(true);
 
   useEffect(() => {
     setPrewrittenConversation(
@@ -485,6 +488,15 @@ const NewNEO = () => {
     setIsIframeLoaded(true);
   };
 
+  const toggleArtifactVisibility = () => {
+    setIsArtifactVisible(!isArtifactVisible);
+    if (isArtifactVisible) {
+      setChatWidth(100);
+    } else {
+      setChatWidth(40);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
       <Toaster
@@ -531,7 +543,7 @@ const NewNEO = () => {
       </nav>
       <div className="flex flex-1 bg-[#0C0A1F] p-4 overflow-hidden">
         <div
-          className="flex flex-col bg-[#181729] rounded-xl custom-scrollbar"
+          className="flex flex-col bg-[#181729] rounded-xl custom-scrollbar transition-all duration-300 ease-in-out"
           style={{ width: `${chatWidth}%` }}
         >
           <div className="flex-1 overflow-y-auto p-6 ">
@@ -573,15 +585,26 @@ const NewNEO = () => {
 
         <div
           ref={resizeRef}
-          className="w-4 cursor-col-resize select-none"
+          className="w-4 cursor-col-resize select-none flex flex-col items-center justify-center"
           onMouseDown={startResize}
-        ></div>
+        >
+          <button
+            onClick={toggleArtifactVisibility}
+            className="p-1 bg-[#2D2D44] rounded-full mb-2 transition-transform duration-300 ease-in-out hover:bg-[#3D3D54]"
+          >
+            {isArtifactVisible ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
+        </div>
 
         <div
-          className={`rounded-md overflow-hidden ${
+          className={`rounded-md overflow-hidden transition-all duration-300 ease-in-out ${
             isVSCodeFullScreen ? "fixed inset-0 z-50" : ""
           }`}
-          style={{ width: isVSCodeFullScreen ? "100%" : `${100 - chatWidth}%` }}
+          style={{ 
+            width: isVSCodeFullScreen ? "100%" : `${100 - chatWidth}%`,
+            opacity: isArtifactVisible ? 1 : 0,
+            visibility: isArtifactVisible ? 'visible' : 'hidden',
+          }}
         >
           {!isVSCodeActive && (
             <div className="artifact-section flex justify-center items-center p-1 bg-[#181729] rounded-xl">
