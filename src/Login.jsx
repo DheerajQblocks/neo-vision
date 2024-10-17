@@ -16,7 +16,7 @@ function Login() {
       
       if (response) {
         localStorage.setItem('email', email);
-        navigate('/dashboard');
+        navigate('/');
       } else {
         alert('Login failed. Please try again.');
       }

@@ -8,11 +8,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route 
+        <Route path="/" element={ isAuthenticated ? <NewNEO /> : <Login />} />
+        {/* <Route 
           path="/dashboard" 
           element={isAuthenticated ? <NewNEO /> : <Navigate to="/" />} 
-        />
+        /> */}
       </Routes>
     </Router>
   );
