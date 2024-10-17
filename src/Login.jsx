@@ -4,11 +4,13 @@ import axios from 'axios';
 
 function Login() {
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const response = await axios.post(`${import.meta.env.VITE_MONSTER_API_URL}/giveaway/direct-login`, {
         id: import.meta.env.VITE_MONSTER_API_ID,
         email: email
@@ -23,6 +25,8 @@ function Login() {
     } catch (error) {
       console.error('Login error:', error);
       alert('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -38,7 +42,9 @@ function Login() {
           required
           style={styles.input}
         />
-        <button type="submit" style={styles.button}>Login</button>
+        <button type="submit" style={styles.button} disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Login'}
+        </button>
       </form>
     </div>
   );
