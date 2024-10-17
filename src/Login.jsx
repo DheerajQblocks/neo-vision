@@ -15,10 +15,10 @@ function Login() {
         id: import.meta.env.VITE_MONSTER_API_ID,
         email: email
       });
-      console.log('login response', response)
+      console.log('login response', response?.data)
       if (response?.data?.type === 'success') {
         localStorage.setItem('email', email);
-        navigate('/');
+        window.location.href = '/';
       } else {
         alert('Login failed. Please try again.');
       }
