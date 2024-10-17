@@ -13,8 +13,8 @@ function Login() {
         id: import.meta.env.VITE_MONSTER_API_ID,
         email: email
       });
-      
-      if (response) {
+      console.log('login response', response)
+      if (response.data.success) {
         localStorage.setItem('email', email);
         navigate('/');
       } else {
