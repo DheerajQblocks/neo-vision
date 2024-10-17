@@ -19,10 +19,6 @@ import TerminalCustome from "../artifact/TerminalCustome";
 import FileBrowserCodeViewer from "../artifact/FileBrowserCodeViewer";
 import ArtifactViewer from '../artifact/ArtifactViewer';
 import { v4 as uuidv4 } from 'uuid';
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-
-
 
 const customToastStyle = {
   style: {
@@ -38,7 +34,7 @@ const customToastStyle = {
   },
 };
 
-const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab }) => {
+const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab, onViewCode }) => {
   const renderContent = () => {
     if (typeof content === "string") {
       const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
@@ -56,15 +52,17 @@ const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab }) => 
           );
         }
 
-        // Add code block
+        // Add "View Code" button instead of code block
         const language = match[1] || 'plaintext';
+        const code = match[2].trim();
         parts.push(
-          <ArtifactViewer
+          <button
             key={match.index}
-            content={match[2].trim()}
-            type="code"
-            language={language}
-          />
+            onClick={() => onViewCode(code, language)}
+            className="bg-[#4A4A6A] text-white px-3 py-1 rounded-md mt-2 mb-2"
+          >
+            View Code
+          </button>
         );
 
         lastIndex = match.index + match[0].length;
@@ -126,7 +124,7 @@ const ThinkingIndicator = () => (
     <img
       src="/images/neo-vision/loader.gif"
       alt="Thinking..."
-      className="w-full h-full" // Adjust size as needed
+      className="w-full h-full"
     />
   </div>
 );
@@ -145,18 +143,15 @@ export const showCustomToast = (message, type = 'success', duration) => {
      toast(message, customToastStyle);
  }
 };
+
 const NewNEO = () => {
-
-
-
-
   const [activeTab, setActiveTab] = useState("Browse");
   const [inputValue, setInputValue] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [tabContent, setTabContent] = useState(null);
   const chatEndRef = useRef(null);
-  const [chatWidth, setChatWidth] = useState(100);
+  const [chatWidth, setChatWidth] = useState(40);
   const resizeRef = useRef(null);
   const [prewrittenConversation, setPrewrittenConversation] = useState([]);
   const [isTypingComplete, setIsTypingComplete] = useState(true);
@@ -172,6 +167,7 @@ const NewNEO = () => {
   const [threadId, setThreadId] = useState(null);
   const [lastEventIndex, setLastEventIndex] = useState(-1);
   const [isUserInputRequired, setIsUserInputRequired] = useState(true);
+  const [artifactContent, setArtifactContent] = useState(null);
 
   useEffect(() => {
     setPrewrittenConversation(
@@ -198,37 +194,6 @@ const NewNEO = () => {
     }
   }, [isTypingComplete, isTyping]);
 
-  const formatTextWithLineBreaks = (text) => {
-    return text.split("\n").map((line, index) => (
-      <React.Fragment key={index}>
-        {line}
-        <br />
-      </React.Fragment>
-    ));
-  };
-
-  const simulateTyping = async (text, callback) => {
-    console.log("Starting to type:", text);
-    setIsTyping(true);
-    setIsTypingComplete(false);
-    setChatHistory((prev) => [...prev, { content: "", isUser: false }]);
-
-    for (let i = 0; i <= text.length; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 1)); // 50ms delay between characters
-      setChatHistory((prev) => {
-        const newHistory = [...prev];
-        newHistory[newHistory.length - 1].content = text.substring(0, i);
-        return newHistory;
-      });
-    }
-
-    console.log("Finished typing");
-    setIsTyping(false);
-    setIsTypingComplete(true);
-    if (callback) setTimeout(callback, 500);
-  };
-
-  // Add this to your existing useEffect or create a new one
   useEffect(() => {
     let isMounted = true;
     const pollEvents = async () => {
@@ -240,13 +205,11 @@ const NewNEO = () => {
             if (isMounted) {
               updateChatHistory(events);
               await checkUserInputRequired();
-              // Schedule the next poll after processing this response
               setTimeout(pollEvents, 1000);
             }
           }
         } catch (error) {
           console.error("Error polling events:", error);
-          // If there's an error, wait before trying again
           if (isMounted) {
             setTimeout(pollEvents, 5000);
           }
@@ -264,10 +227,13 @@ const NewNEO = () => {
   }, [threadId]);
 
   const updateChatHistory = (events) => {
-    // Filter out events we've already processed
     const newEvents = events.slice(lastEventIndex + 1);
     if (newEvents.length > 0) {
-      setChatHistory(events); // Set the entire events array as the chat history
+      setChatHistory(events.map(event => ({
+        ...event,
+        content: event.content,
+        isUser: event.role === "user" && event.name === "Admin"
+      })));
       setLastEventIndex(events.length - 1);
     }
   };
@@ -276,7 +242,7 @@ const NewNEO = () => {
     const newThreadId = uuidv4();
     setThreadId(newThreadId);
     setIsThinking(true);
-    setLastEventIndex(-1); // Reset lastEventIndex when starting a new chat
+    setLastEventIndex(-1);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/init-chat`, {
@@ -293,8 +259,6 @@ const NewNEO = () => {
       if (!response.ok) {
         throw new Error('Failed to initialize chat');
       }
-
-      // The response is handled by the polling mechanism
     } catch (error) {
       console.error("Error initializing chat:", error);
       showCustomToast("Failed to start the conversation", "error");
@@ -309,8 +273,6 @@ const NewNEO = () => {
 
     const userMessage = inputValue;
     setInputValue("");
-    // Don't add user message to chat history here
-    // It will be added when received from the server
 
     if (!threadId) {
       await initChat(userMessage);
@@ -339,8 +301,6 @@ const NewNEO = () => {
       if (!response.ok) {
         throw new Error('Failed to send user input');
       }
-
-      // The response is handled by the polling mechanism
     } catch (error) {
       console.error("Error sending user input:", error);
       showCustomToast("Failed to send your message", "error");
@@ -356,7 +316,6 @@ const NewNEO = () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/user-input-required/${threadId}`);
       if (response.ok) {
         const data = await response.json();
-        
         setIsUserInputRequired(data?.user_input_required);
       }
     } catch (error) {
@@ -388,7 +347,7 @@ const NewNEO = () => {
   const handleResize = (e) => {
     if (resizeRef.current) {
       const newWidth = (e.clientX / window.innerWidth) * 100;
-      setChatWidth(Math.max(30, Math.min(70, newWidth))); // Limit width between 30% and 70%
+      setChatWidth(Math.max(30, Math.min(70, newWidth)));
     }
   };
 
@@ -402,162 +361,85 @@ const NewNEO = () => {
     document.removeEventListener("mouseup", stopResize);
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      audioChunksRef.current = [];
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/wav",
-        });
-        const url = URL.createObjectURL(audioBlob);
-        setAudioURL(url);
-        sendAudioMessage(url);
-      };
-
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
-    }
+  const handleViewCode = (code, language) => {
+    setArtifactContent({ content: code, type: "code", language });
+    setActiveTab("Artifact Viewer");
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
+  const handleActionClick = async (actionText) => {
+    setChatHistory((prev) => [...prev, { content: actionText, isUser: true }]);
 
-  const sendAudioMessage = (url) => {
-    const newAudioMessage = { content: url, isUser: true, isAudio: true };
-    console.log("new Audio Message", newAudioMessage)
-    // setChatHistory((prev) => [...prev, newAudioMessage]);
-    setChatHistory((prev) => [
-      ...prev,
-      {
-        content: (
-          <AudioPlayer
-            audioSrc={"/images/neo-vision/audio.mp3"}
-            onEnded={() => {
-              simulateTyping("Here is the audio response...");
-            }}
-          />
-        ),
-        isUser: true,
-        isAudio: true,
-      },
-    ]);
-
-    simulateTyping("Processing Audio. Please hold tight...", () => {
-      setIsThinking(true);
-      setTimeout(() => {
-        setIsThinking(false);
-        setChatHistory((prev) => [
-          ...prev,
-          {
-            content: (
-              <AudioPlayer
-                audioSrc={"/images/neo-vision/audio.mp3"}
-                onEnded={() => {
-                  simulateTyping("Here is the audio response...");
-                }}
-              />
-            ),
-            isUser: false,
-            isAudio: true,
-          },
-        ]);
-      }, 3000); // 3 seconds delay to show the thinking indicator
-    });
-  };
-
-
-const handleActionClick = async (actionText) => {
-  setChatHistory((prev) => [...prev, { content: actionText, isUser: true }]);
-
-  const currentConversation = prewrittenConversation.find(
-    (conv) => conv.input.toLowerCase() === actionText.toLowerCase()
-  );
-
-  if (currentConversation) {
-    // Output
-    if (currentConversation.outputDelay) {
-      setIsThinking(true);
-      await new Promise((resolve) =>
-        setTimeout(resolve, currentConversation.outputDelay)
-      );
-      setIsThinking(false);
-    }
-    await simulateTyping(currentConversation.output);
-
-    // Action
-    if (currentConversation.action) {
-      if (currentConversation.actionDelay) {
-        setIsThinking(true);
-        await new Promise((resolve) =>
-          setTimeout(resolve, currentConversation.actionDelay)
-        );
-        setIsThinking(false);
-      }
-      await new Promise((resolve) => currentConversation.action(resolve));
-    }
-
-    // FollowUp
-    if (currentConversation.followUp) {
-      if (currentConversation.followUpDelay) {
-        setIsThinking(true);
-        await new Promise((resolve) =>
-          setTimeout(resolve, currentConversation.followUpDelay)
-        );
-        setIsThinking(false);
-      }
-      await simulateTyping(currentConversation.followUp);
-    }
-  } else {
-    setIsThinking(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500)); // Default delay
-    setIsThinking(false);
-    await simulateTyping(
-      "I'm sorry, I don't have a pre-written response for that action."
+    const currentConversation = prewrittenConversation.find(
+      (conv) => conv.input.toLowerCase() === actionText.toLowerCase()
     );
-  }
-};
 
-const handleTabClick = (tabName) => {
-  setActiveTab(tabName);
-  setIsVSCodeActive(tabName === "File Explorer");
-};
+    if (currentConversation) {
+      if (currentConversation.outputDelay) {
+        setIsThinking(true);
+        await new Promise((resolve) =>
+          setTimeout(resolve, currentConversation.outputDelay)
+        );
+        setIsThinking(false);
+      }
+      await simulateTyping(currentConversation.output);
 
-const toggleVSCodeFullScreen = () => {
-  setIsVSCodeFullScreen(!isVSCodeFullScreen);
-};
+      if (currentConversation.action) {
+        if (currentConversation.actionDelay) {
+          setIsThinking(true);
+          await new Promise((resolve) =>
+            setTimeout(resolve, currentConversation.actionDelay)
+          );
+          setIsThinking(false);
+        }
+        await new Promise((resolve) => currentConversation.action(resolve));
+      }
 
-useEffect(() => {
-  const handleEscapeKey = (event) => {
-    if (event.key === "Escape" && isVSCodeFullScreen) {
-      setIsVSCodeFullScreen(false);
+      if (currentConversation.followUp) {
+        if (currentConversation.followUpDelay) {
+          setIsThinking(true);
+          await new Promise((resolve) =>
+            setTimeout(resolve, currentConversation.followUpDelay)
+          );
+          setIsThinking(false);
+        }
+        await simulateTyping(currentConversation.followUp);
+      }
+    } else {
+      setIsThinking(true);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setIsThinking(false);
+      await simulateTyping(
+        "I'm sorry, I don't have a pre-written response for that action."
+      );
     }
   };
 
-  document.addEventListener("keydown", handleEscapeKey);
-
-  return () => {
-    document.removeEventListener("keydown", handleEscapeKey);
+  const handleTabClick = (tabName) => {
+    setActiveTab(tabName);
+    setIsVSCodeActive(tabName === "File Explorer");
   };
-}, [isVSCodeFullScreen]);
 
-const handleIframeLoad = () => {
-  setIsIframeLoaded(true);
-};
+  const toggleVSCodeFullScreen = () => {
+    setIsVSCodeFullScreen(!isVSCodeFullScreen);
+  };
+
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape" && isVSCodeFullScreen) {
+        setIsVSCodeFullScreen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [isVSCodeFullScreen]);
+
+  const handleIframeLoad = () => {
+    setIsIframeLoaded(true);
+  };
 
   return (
     <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
@@ -613,10 +495,11 @@ const handleIframeLoad = () => {
               <ChatMessage
                 key={index}
                 content={message.content}
-                isUser={message.role === "user" && message.name === "Admin"}
+                isUser={message.isUser}
                 isAudio={message?.isAudio}
                 onActionClick={handleActionClick}
                 activeTab={activeTab}
+                onViewCode={handleViewCode}
               />
             ))}
             {threadId && !isUserInputRequired && <ThinkingIndicator />}
@@ -624,20 +507,19 @@ const handleIframeLoad = () => {
           </div>
           <form onSubmit={handleSubmit} className="p-4">
             <div className="flex items-center bg-[#2D2D44] rounded-full py-1 overflow-hidden">
-              {console.log("isUserInputRequired",(isUserInputRequired))}
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={isUserInputRequired ? "Write prompt" : "Waiting for response..."}
                 className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
-                disabled={isUserInputRequired === true ? false : true}
+                disabled={!isUserInputRequired}
                 ref={inputRef}
               />
               <button
                 type="submit"
                 className="bg-[#4A4A6A] rounded-full border-none p-3 mr-1"
-                disabled={isUserInputRequired === true ? false : true}
+                disabled={!isUserInputRequired}
               >
                 <Send size={20} className="text-white" />
               </button>
@@ -681,7 +563,13 @@ const handleIframeLoad = () => {
           )}
 
           <div className={`bg-[#141324] ${activeTab === "File Explorer" ? "h-full" : "mt-4 h-[calc(100%-4rem)]"} overflow-auto rounded-xl relative`}>
-            {activeTab === "Artifact Viewer" && <ArtifactViewer />}
+            {activeTab === "Artifact Viewer" && artifactContent && (
+              <ArtifactViewer
+                content={artifactContent.content}
+                type={artifactContent.type}
+                language={artifactContent.language}
+              />
+            )}
             {activeTab === "File Explorer" && (
               <>
                 <button
