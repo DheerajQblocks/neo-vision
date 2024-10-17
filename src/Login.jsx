@@ -14,7 +14,7 @@ function Login() {
         email: email
       });
       console.log('login response', response)
-      if (response.data.success) {
+      if (response?.data?.type === 'success') {
         localStorage.setItem('email', email);
         navigate('/');
       } else {
