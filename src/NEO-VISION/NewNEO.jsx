@@ -555,7 +555,7 @@ const NewNEO = () => {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder={isUserInputRequired ? "Write prompt" : "Waiting for response..."}
+                placeholder={isUserInputRequired || firstTimeQuery === true ? "Write prompt" : "Waiting for response..."}
                 className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
                 disabled={!isUserInputRequired && firstTimeQuery === false}
                 ref={inputRef}
