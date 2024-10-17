@@ -166,8 +166,9 @@ const NewNEO = () => {
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
   const [threadId, setThreadId] = useState(null);
   const [lastEventIndex, setLastEventIndex] = useState(-1);
-  const [isUserInputRequired, setIsUserInputRequired] = useState(true);
+  let [isUserInputRequired, setIsUserInputRequired] = useState(false);
   const [artifactContent, setArtifactContent] = useState(null);
+  let [firstTimeQuery, setFirstTimeQuery] = useState(true);
 
   useEffect(() => {
     setPrewrittenConversation(
@@ -196,7 +197,9 @@ const NewNEO = () => {
 
   useEffect(() => {
     let isMounted = true;
-    const pollEvents = async () => {
+    const pollEvents = async () => 
+      {
+        
       if (threadId && isMounted) {
         try {
           const response = await fetch(`${import.meta.env.VITE_API_URL}/events/${threadId}`);
@@ -204,8 +207,17 @@ const NewNEO = () => {
             const events = await response.json();
             if (isMounted) {
               updateChatHistory(events);
-              await checkUserInputRequired();
-              setTimeout(pollEvents, 1000);
+           
+              // else if (firstTimeQuery === false){
+              //   setFirstTimeQuery(false);
+              //   await checkUserInputRequired();
+              //   setTimeout(pollEvents, 1000);
+              // }
+            //  else{
+            //   await checkUserInputRequired();
+            //   setFirstTimeQuery(false);
+            //   setTimeout(pollEvents, 1000);
+            //  }
             }
           }
         } catch (error) {
@@ -217,14 +229,43 @@ const NewNEO = () => {
       }
     };
 
-    if (threadId) {
-      pollEvents();
+    const pollUserInputRequired = async () => {
+      await checkUserInputRequired();
+      if (isUserInputRequired === false) {
+        setTimeout(pollUserInputRequired, 1000);
+      }
     }
+
+    // if(isUserInputRequired === false && firstTimeQuery === true){
+    //   setFirstTimeQuery(false);
+    //   firstTimeQuery = false;
+    //   await checkUserInputRequired();
+    //   console.log("isUserInputRequired",isUserInputRequired, "firstTimeQuery", firstTimeQuery)
+    //   setTimeout(pollEvents, 1000);
+    // }
+    // else if(isUserInputRequired === true){
+    //   // setFirstTimeQuery(false);
+    //   return;
+    // }
+    // else{
+    //   await checkUserInputRequired();
+    // }
+    
+
+    if (threadId && (isUserInputRequired === false || firstTimeQuery === true)) {
+      console.log("threadId", threadId, "isUserInputRequired", isUserInputRequired, "firstTimeQuery", firstTimeQuery)
+      pollEvents();
+      pollUserInputRequired();
+    }
+    if (threadId && isUserInputRequired === false) {
+      pollEvents();
+      pollUserInputRequired();
+    } 
 
     return () => {
       isMounted = false;
     };
-  }, [threadId]);
+  }, [threadId, isUserInputRequired]);
 
   const updateChatHistory = (events) => {
     const newEvents = events.slice(lastEventIndex + 1);
@@ -252,7 +293,8 @@ const NewNEO = () => {
         },
         body: JSON.stringify({
           threadId: newThreadId,
-          message: message
+          message: message,
+          email: 'howtotech000@gmail.com'
         }),
       });
 
@@ -301,6 +343,7 @@ const NewNEO = () => {
       if (!response.ok) {
         throw new Error('Failed to send user input');
       }
+      setIsUserInputRequired(false);
     } catch (error) {
       console.error("Error sending user input:", error);
       showCustomToast("Failed to send your message", "error");
@@ -317,6 +360,7 @@ const NewNEO = () => {
       if (response.ok) {
         const data = await response.json();
         setIsUserInputRequired(data?.user_input_required);
+        isUserInputRequired = data?.user_input_required;
       }
     } catch (error) {
       console.error("Error checking user input requirement:", error);
@@ -513,13 +557,13 @@ const NewNEO = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={isUserInputRequired ? "Write prompt" : "Waiting for response..."}
                 className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
-                disabled={!isUserInputRequired}
+                disabled={!isUserInputRequired && firstTimeQuery === false}
                 ref={inputRef}
               />
               <button
                 type="submit"
                 className="bg-[#4A4A6A] rounded-full border-none p-3 mr-1"
-                disabled={!isUserInputRequired}
+                disabled={!isUserInputRequired && firstTimeQuery === false}
               >
                 <Send size={20} className="text-white" />
               </button>
