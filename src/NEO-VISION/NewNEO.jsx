@@ -19,6 +19,8 @@ import TerminalCustome from "../artifact/TerminalCustome";
 import FileBrowserCodeViewer from "../artifact/FileBrowserCodeViewer";
 import ArtifactViewer from '../artifact/ArtifactViewer';
 import { v4 as uuidv4 } from 'uuid';
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 
 
@@ -37,44 +39,6 @@ const customToastStyle = {
 };
 
 const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab }) => {
-  console.log("is audio", isAudio)
-  console.log("content isUser onActionClick", content, isUser, onActionClick)
-  const renderActions = (actions) => {
-    return (
-      <div className="mt-4 flex flex-col items-center w-full">
-        <div
-          className="text-purple-300 px-4 py-2 rounded-full inline-block mb-2 w-full mt-2 text-center"
-          style={{
-            background:
-              "linear-gradient(90.04deg, #412F9F 0.03%, rgba(24, 23, 41, 0) 90.72%)",
-          }}
-        >
-          <span className="mr-2 text-xl text-center">✦</span>
-          You can take the following actions, click to test
-        </div>
-        <div className="flex flex-wrap gap-2 justify-center">
-          {actions.map((action, index) => {
-            const actionText = action.replace(/^\[action\]|\[\/action\]$/g, "");
-            return (
-              <button
-                key={index}
-                onClick={() => onActionClick(actionText)}
-                className="text-purple-300 px-4 py-2 rounded-md transition-colors"
-                style={{
-                  background: "#4334E630",
-                  border: "0.4px solid #FFFFFF1A",
-                  boxShadow: "0px 4px 12px 0px #00000014",
-                }}
-              >
-                {actionText}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
   const renderContent = () => {
     if (typeof content === "string") {
       const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
@@ -192,7 +156,7 @@ const NewNEO = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [tabContent, setTabContent] = useState(null);
   const chatEndRef = useRef(null);
-  const [chatWidth, setChatWidth] = useState(40);
+  const [chatWidth, setChatWidth] = useState(100);
   const resizeRef = useRef(null);
   const [prewrittenConversation, setPrewrittenConversation] = useState([]);
   const [isTypingComplete, setIsTypingComplete] = useState(true);

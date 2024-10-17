@@ -4,38 +4,8 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { FaCopy } from "react-icons/fa6";
 import "./ArtifactViewer.css";
 
-const ArtifactViewer = ({ content, type = "image", language = "javascript" }) => {
-  const [displayedCode, setDisplayedCode] = React.useState("");
-  const [isTyping, setIsTyping] = React.useState(true);
+const ArtifactViewer = ({ content, type = "code", language = "python" }) => {
   const [copied, setCopied] = React.useState(false);
-  const codeContainerRef = React.useRef(null);
-
-  React.useEffect(() => {
-    if (type === "code") {
-      setDisplayedCode("");
-      let i = 0;
-      const typingInterval = setInterval(() => {
-        if (i < content.length-1) {
-          setDisplayedCode((prev) => {
-            const newCode = prev + content[i];
-            setTimeout(() => {
-              if (codeContainerRef.current) {
-                codeContainerRef.current.scrollTop =
-                  codeContainerRef.current.scrollHeight;
-              }
-            }, 0);
-            return newCode;
-          });
-          i++;
-        } else {
-          clearInterval(typingInterval);
-          setIsTyping(false);
-        }
-      }, 5);
-
-      return () => clearInterval(typingInterval);
-    }
-  }, [content, type]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
@@ -57,16 +27,14 @@ const ArtifactViewer = ({ content, type = "image", language = "javascript" }) =>
               {copied ? "Copied!" : "Copy"}
             </button>
           </div>
-          <div ref={codeContainerRef} className="flex-grow overflow-auto code-scrollbar">
-            <div className="p-4">
-              <SyntaxHighlighter
-                language={language}
-                style={vscDarkPlus}
-                customStyle={{ margin: 0, background: "transparent" }}
-              >
-                {content}
-              </SyntaxHighlighter>
-            </div>
+          <div className="p-4">
+            <SyntaxHighlighter
+              language={language}
+              style={vscDarkPlus}
+              customStyle={{ margin: 0, background: "transparent" }}
+            >
+              {content}
+            </SyntaxHighlighter>
           </div>
         </div>
       ) : (
