@@ -23,6 +23,8 @@ import ArtifactViewer from '../artifact/ArtifactViewer';
 import { v4 as uuidv4 } from 'uuid';
 import MLTaskForm from "./MLTaskForm";
 import { Tooltip } from 'react-tooltip'; // Add this import at the top
+import  Terminal  from 'react-terminal-ui';
+import { useInterval } from 'react-use';
 
 const customToastStyle = {
   style: {
@@ -179,8 +181,8 @@ const NewNEO = () => {
   const [artifactContent, setArtifactContent] = useState(null);
   let [firstTimeQuery, setFirstTimeQuery] = useState(true);
   const [isArtifactVisible, setIsArtifactVisible] = useState(true);
+  const [terminalLines, setTerminalLines] = useState([]);
 
-  
   const welcomeMessage = {
     content: {
       text: `Greetings, human!\nI’m Neo, your personal ML engineer. 🚀
@@ -596,6 +598,22 @@ Give me a task, and I'll dive right in!`
     }
   };
 
+  const fetchTerminalLogs = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/agent_terminal_logs?n_lines=30');
+      const data = await response.json();
+      setTerminalLines(data.last_lines);
+    } catch (error) {
+      console.error('Error fetching terminal logs:', error);
+    }
+  };
+
+  useInterval(() => {
+    if (activeTab === 'Terminal' && isUserInputRequired === false) {
+      fetchTerminalLogs();
+    }
+  }, 2000);
+
   return (
     <div className="flex flex-col h-screen bg-[#1e1e1e] text-[#cccccc] overflow-hidden">
       <Toaster
@@ -620,6 +638,7 @@ Give me a task, and I'll dive right in!`
               { name: "Artifact Viewer", icon: Code },
               { name: "Monitor", icon: ChartNoAxesCombined },
               { name: "File Explorer", icon: Monitor },
+              { name: "Terminal", icon: Square }, // Add this new tab
             ].map(({ name, icon: Icon }) => (
               <button
                 key={name}
@@ -725,6 +744,7 @@ Give me a task, and I'll dive right in!`
             <div className="artifact-section flex justify-center items-center p-1 bg-[#252526] rounded-xl">
               {[
                 { name: "Artifact Viewer", icon: Code },
+                { name: "Terminal", icon: Square }, // Add this new tab
                 { name: "Monitor", icon: ChartNoAxesCombined },
                 { name: "File Explorer", icon: Monitor },
               ].map(({ name, icon: Icon }) => (
@@ -784,6 +804,24 @@ Give me a task, and I'll dive right in!`
               </>
             )}
             {activeTab === "Monitor" && tabContent}
+            {activeTab === "Terminal" && (
+              <Terminal
+                name="NEO Terminal"
+                prompt="neo>"
+                height="100 %"
+                colorMode="#2d2d44"
+                commands={{
+                  'clear': () => setTerminalLines([]),
+                }}
+              >
+                {terminalLines.length === 0 && (
+                  <div>No logs found</div>
+                )}
+                {terminalLines.map((line, index) => (
+                  <div key={index}>{line}</div>
+                ))}
+              </Terminal>
+            )}
           </div>
         </div>
       </div>
