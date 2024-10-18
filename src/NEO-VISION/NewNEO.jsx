@@ -640,15 +640,19 @@ Give me a task, and I'll dive right in!`
     }
   };
 
-  useEffect(() => {
-    const storedThreadId = localStorage.getItem('threadId');
-    if (storedThreadId) {
-      setIsModalOpen(true);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedThreadId = localStorage.getItem('threadId');
+  //   if (storedThreadId) {
+  //     setIsModalOpen(true);
+  //   }
+  // }, []);
 
   const handleContinueSession = () => {
-    setThreadId(localStorage.getItem('threadId'));
+    const storedThreadId = localStorage.getItem('threadId');
+    if (storedThreadId) {
+      setThreadId(storedThreadId);
+      fetchEventsAndUpdateChat(storedThreadId);
+    }
     setIsModalOpen(false);
   };
 
@@ -674,6 +678,35 @@ Give me a task, and I'll dive right in!`
     } catch (error) {
       console.error("Error terminating session:", error);
       showCustomToast("Failed to reload. Please try again.", "error");
+    }
+  };
+
+  useEffect(() => {
+    const storedThreadId = localStorage.getItem('threadId');
+    if (storedThreadId) {
+      setThreadId(storedThreadId);
+      fetchEventsAndUpdateChat(storedThreadId);
+      setIsModalOpen(true);
+    }
+  }, []);
+
+  const fetchEventsAndUpdateChat = async (threadId) => {
+    try {
+      const response = await fetch(`https://neov1.monsterapi.ai/backend/events/${threadId}`);
+      if (response.ok) {
+        const data = await response.json();
+        updateChatHistory(data.events);
+      } else {
+        const errorData = await response.json();
+        if (errorData.detail === "Thread not found") {
+          localStorage.removeItem('threadId');
+          window.location.reload();
+        } else {
+          console.error('Failed to fetch events:', errorData);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error);
     }
   };
 
