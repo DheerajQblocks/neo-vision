@@ -181,7 +181,7 @@ const NewNEO = () => {
   
   const welcomeMessage = {
     content: {
-      text: `Greetings, human!\nI’m Neo, your friendly neighborhood ML engineer. 🚀
+      text: `Greetings, human!\nI’m Neo, your personal ML engineer. 🚀
 
 Here's what I can do:\n\n`,
       tasks: [
@@ -253,14 +253,14 @@ Give me a task, and I'll dive right in!`
 
     return (
       <>
-        <div>{content.text}</div>
+        <div>{content.text} <br /> <br /></div>
         {content.tasks.map((task, index) => (
           <div 
             key={index} 
-            className="ml-4 cursor-pointer text-blue-400 hover:underline" 
+            className="ml-4  cursor-pointer text-blue-400 hover:underline" 
             onClick={() => handleCapabilityClick(task.display)}
           >
-            • {task.display}
+            • {task.display} <br /> <br />
           </div>
         ))}
         <div>{content.footer}</div>
