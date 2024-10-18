@@ -152,7 +152,7 @@ export const showCustomToast = (message, type = 'success', duration) => {
 };
 
 const NewNEO = () => {
-  const [activeTab, setActiveTab] = useState("Browse");
+  const [activeTab, setActiveTab] = useState("Artifact Viewer");
   const [inputValue, setInputValue] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -179,42 +179,93 @@ const NewNEO = () => {
   const [isArtifactVisible, setIsArtifactVisible] = useState(true);
 
   
+  const welcomeMessage = {
+    content: {
+      text: `Greetings, human! I'm Neo, your friendly neighborhood ML engineer. 🚀
+
+Here's what I can do:`,
+      tasks: [
+        {
+          display: "Train a model to recommend your next favorite movie.",
+          detailed: "Train a model to recommend your next favorite movie."
+        },
+        {
+          display: "Build a smart dog breed classifier.",
+          detailed: `Given a dataset of images of dogs, predict the breed of each image.
+
+# Metric
+
+Multi Class Log Loss.
+
+# Submission Format
+
+For each image in the test set, you must predict a probability for each of the different breeds. The file should contain a header and have the following format:
+\`\`\`
+id,affenpinscher,afghan_hound,..,yorkshire_terrier
+000621fb3cbb32d8935728e48679680e,0.0083,0.0,...,0.0083
+etc.
+\`\`\`
+
+# Dataset Description
+
+- \`train.zip\` - the training set, you are provided the breed for these dogs
+- \`test.zip\` - the test set, you must predict the probability of each breed for each image
+- \`sample_submission.csv\` - a sample submission file in the correct format
+- \`labels.csv\` - the breeds for the images in the train set
+
+# Dataset name:
+dog-breed-identification
+
+Dataset can be downloaded using Kaggle CLI:
+\`\`\`bash
+kaggle competitions download -c dog-breed-identification
+\`\`\`
+
+Assume that the Kaggle CLI is already installed and ready to use.`
+        },
+        {
+          display: "Set up a chat moderation pipeline using GPT-4.",
+          detailed: "Set up a chat moderation pipeline using GPT-4."
+        }
+      ],
+      footer: `I'm always learning, so I might run into a few errors (don't worry, I'll fix them!). If needed, I may ask for your guidance as well.
+
+Give me a task, and I'll dive right in!`
+    },
+    isUser: false,
+    name: "Neo"
+  };
   useEffect(() => {
     // Display welcome message when component mounts
-    const welcomeMessage = {
-      content: `Greetings, human! I'm Neo, your friendly neighborhood ML engineer. 🚀
-
-Here's what I can do:
-• Train a model to recommend your next favorite movie.
-• Build a smart dog breed classifier.
-• Set up a chat moderation pipeline using GPT-4.
-
-I'm always learning, so I might run into a few errors (don't worry, I'll fix them!). If needed, I may ask for your guidance as well.
-
-Give me a task, and I'll dive right in!`,
-      isUser: false,
-      name: "Neo"
-    };
     setChatHistory([welcomeMessage]);
   }, []);
 
   const handleCapabilityClick = (capability) => {
-    setInputValue(capability);
+    console.log("capability", capability)
+    const task = welcomeMessage.content.tasks.find(t => t.display === capability);
+    setInputValue(task ? task.detailed : capability);
   };
 
   const renderMessageContent = (content) => {
-    const parts = content.split('\n');
-    return parts.map((part, index) => {
-      if (part.startsWith('•')) {
-        const capability = part.substring(1).trim();
-        return (
-          <div key={index} className="ml-4 cursor-pointer text-blue-400 hover:underline" onClick={() => handleCapabilityClick(capability)}>
-            • {capability}
+    if (typeof content === 'string') {
+      return <div>{content}</div>;
+    }
+
+    return (
+      <>
+        <div>{content.text}</div>
+        {content.tasks.map((task, index) => (
+          <div 
+            key={index} 
+            className="ml-4 cursor-pointer text-blue-400 hover:underline" 
+            onClick={() => handleCapabilityClick(task.display)}
+          >
+            • {task.display}
           </div>
-        );
-      }
-      return <div key={index}>{part}</div>;
-    });
+        ))}
+        <div>{content.footer}</div>
+      </>
+    );
   };
 
 

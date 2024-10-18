@@ -24,7 +24,7 @@ const MLTaskForm = ({ onSubmit, isUserInputRequired, firstTimeQuery, value, setI
           value={value}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={isUserInputRequired || firstTimeQuery ? "Provide an ML task" : "Waiting for response..."}
-          className="flex-1 bg-transparent border-none text-white py-2 px-2 focus:outline-none overflow-hidden resize-vertical"
+          className="flex-1 overflow-auto bg-transparent border-none text-white py-2 px-2 focus:outline-none resize-vertical"
           disabled={!isUserInputRequired && !firstTimeQuery}
           ref={textareaRef}
           rows={1}

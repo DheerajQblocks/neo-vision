@@ -13,6 +13,11 @@ const ArtifactViewer = ({ content, type = "code", language = "python" }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  if(!content) return (
+    <div className="artifact-viewer">
+      <div className="p-4"> No artifact found </div>
+    </div>
+  )
   return (
     <div className="artifact-viewer">
       {type === "code" ? (
