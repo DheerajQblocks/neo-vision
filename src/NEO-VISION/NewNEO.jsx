@@ -26,7 +26,7 @@ import MLTaskForm from "./MLTaskForm";
 import { Tooltip } from 'react-tooltip'; // Add this import at the top
 import  Terminal  from 'react-terminal-ui';
 import { useInterval } from 'react-use';
-import Modal from 'react-modal'; // Make sure to install this package
+import CustomModal from '../components/CustomModal';
 
 const customToastStyle = {
   style: {
@@ -186,7 +186,7 @@ const NewNEO = () => {
   const [terminalLines, setTerminalLines] = useState([]);
   const terminalRef = useRef(null);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  let [isModalOpen, setIsModalOpen] = useState(false);
 
   const welcomeMessage = {
     content: {
@@ -612,6 +612,15 @@ Give me a task, and I'll dive right in!`
     try {
       const response = await fetch('https://neov1.monsterapi.ai/backend/agent_terminal_logs');
       const data = await response.json();
+      if(!Array.isArray(data.last_lines)){
+        // showCustomToast("Error fetching terminal logs", "error");
+        // can we set error in terminal
+        setTerminalLines(prevLines => {
+          const newLines = ["Error fetching terminal logs"];
+          return [...prevLines, ...newLines];
+        });
+        return;
+      }
       setTerminalLines(prevLines => {
         const newLines = data.last_lines.filter(line => !prevLines.includes(line));
         return [...prevLines, ...newLines];
@@ -654,6 +663,7 @@ Give me a task, and I'll dive right in!`
       fetchEventsAndUpdateChat(storedThreadId);
     }
     setIsModalOpen(false);
+    isModalOpen = false;
   };
 
   const handleNewSession = () => {
@@ -661,9 +671,14 @@ Give me a task, and I'll dive right in!`
     window.location.reload();
     setThreadId(null);
     setIsModalOpen(false);
+    isModalOpen = false;
   };
 
   const handleReload = async () => {
+    if(!threadId){
+      showCustomToast("No active session found", "error");
+      return;
+    }
     try {
       const response = await fetch(`https://neov1.monsterapi.ai/backend/terminate/${threadId}`, {
         method: 'DELETE',
@@ -686,6 +701,8 @@ Give me a task, and I'll dive right in!`
     if (storedThreadId) {
       setThreadId(storedThreadId);
       fetchEventsAndUpdateChat(storedThreadId);
+      setIsModalOpen(true);
+
       
     }
   }, []);
@@ -696,7 +713,6 @@ Give me a task, and I'll dive right in!`
       if (response.ok) {
         const data = await response.json();
         updateChatHistory(data.events);
-        setIsModalOpen(true);
       } else {
         const errorData = await response.json();
         if (errorData.detail === "Thread not found") {
@@ -922,28 +938,9 @@ Give me a task, and I'll dive right in!`
         </div>
       </div>
       
-      <Modal
+      <CustomModal
         isOpen={isModalOpen}
-        onRequestClose={() => {}} // Empty function to prevent closing
-        style={{
-          content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: '#252526',
-            border: '1px solid #007acc',
-            borderRadius: '8px',
-            padding: '20px',
-            color: '#cccccc',
-          },
-          overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.75)'
-          }
-        }}
-        contentLabel="Session Modal"
+        onClose={() => setIsModalOpen(false)}
       >
         <h2 className="text-xl mb-4">Existing Session Found</h2>
         <p className="mb-4">Do you want to continue the existing session or start a new one?</p>
@@ -961,7 +958,7 @@ Give me a task, and I'll dive right in!`
             New Session
           </button>
         </div>
-      </Modal>
+      </CustomModal>
     </div>
   );
 };
