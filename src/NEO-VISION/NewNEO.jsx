@@ -182,6 +182,8 @@ const NewNEO = () => {
   let [firstTimeQuery, setFirstTimeQuery] = useState(true);
   const [isArtifactVisible, setIsArtifactVisible] = useState(true);
   const [terminalLines, setTerminalLines] = useState([]);
+  const terminalRef = useRef(null);
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
 
   const welcomeMessage = {
     content: {
@@ -600,19 +602,35 @@ Give me a task, and I'll dive right in!`
 
   const fetchTerminalLogs = async () => {
     try {
-      const response = await fetch('http://localhost:3000/agent_terminal_logs?n_lines=30');
+      const response = await fetch('https://neov1.monsterapi.ai/backend/agent_terminal_logs');
       const data = await response.json();
-      setTerminalLines(data.last_lines);
+      setTerminalLines(prevLines => {
+        const newLines = data.last_lines.filter(line => !prevLines.includes(line));
+        return [...prevLines, ...newLines];
+      });
     } catch (error) {
       console.error('Error fetching terminal logs:', error);
     }
   };
 
   useInterval(() => {
-    if (activeTab === 'Terminal' && isUserInputRequired === false) {
+    if (activeTab === 'Terminal') {
       fetchTerminalLogs();
     }
   }, 2000);
+
+  useEffect(() => {
+    if (isScrolledToBottom && terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [terminalLines, isScrolledToBottom]);
+
+  const handleTerminalScroll = () => {
+    if (terminalRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = terminalRef.current;
+      setIsScrolledToBottom(scrollHeight - scrollTop === clientHeight);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-[#1e1e1e] text-[#cccccc] overflow-hidden">
@@ -805,22 +823,25 @@ Give me a task, and I'll dive right in!`
             )}
             {activeTab === "Monitor" && tabContent}
             {activeTab === "Terminal" && (
-              <Terminal
-                name="NEO Terminal"
-                prompt="neo>"
-                height="100 %"
-                colorMode="#2d2d44"
-                commands={{
-                  'clear': () => setTerminalLines([]),
-                }}
+              <div 
+                ref={terminalRef}
+                className="h-full overflow-auto"
+                onScroll={handleTerminalScroll}
               >
-                {terminalLines.length === 0 && (
-                  <div>No logs found</div>
-                )}
-                {terminalLines.map((line, index) => (
-                  <div key={index}>{line}</div>
-                ))}
-              </Terminal>
+                <Terminal
+                  name="NEO Terminal"
+                  prompt="neo>"
+                  height="100%"
+                  colorMode="dark"
+                  commands={{
+                    'clear': () => setTerminalLines([]),
+                  }}
+                >
+                  {terminalLines.map((line, index) => (
+                    <div key={index}>{line}</div>
+                  ))}
+                </Terminal>
+              </div>
             )}
           </div>
         </div>
