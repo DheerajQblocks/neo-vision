@@ -723,8 +723,11 @@ Give me a task, and I'll dive right in!`
             onClick={handleReload}
             className="p-2 rounded-full bg-[#2D2D44] hover:bg-[#3D3D54] transition-colors duration-200"
             title="Reload"
+            data-tooltip-id="reload-tooltip"
+            data-tooltip-content="Terminate and reload the chat"
           >
             <RefreshCw size={20} />
+            <Tooltip id="reload-tooltip" />
           </button>
         </div>
       </nav>
