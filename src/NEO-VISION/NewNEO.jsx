@@ -665,7 +665,7 @@ Give me a task, and I'll dive right in!`
 
   const handleReload = async () => {
     try {
-      const response = await fetch('https://neov1.monsterapi.ai/backend/terminate', {
+      const response = await fetch(`https://neov1.monsterapi.ai/backend/terminate/${threadId}`, {
         method: 'DELETE',
       });
       
