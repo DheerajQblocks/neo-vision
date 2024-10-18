@@ -662,6 +662,7 @@ Give me a task, and I'll dive right in!`
               <ChatMessage
                 key={index}
                 content={message.content}
+                name={message.name}
                 isUser={message.isUser}
                 isAudio={message?.isAudio}
                 onActionClick={handleActionClick}
