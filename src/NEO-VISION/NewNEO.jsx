@@ -186,7 +186,7 @@ const NewNEO = () => {
 
 Here's what I can do:
 • Train a model to recommend your next favorite movie.
-• Build a smart dog breed classifier. 
+• Build a smart dog breed classifier.
 • Set up a chat moderation pipeline using GPT-4.
 
 I'm always learning, so I might run into a few errors (don't worry, I'll fix them!). If needed, I may ask for your guidance as well.
@@ -351,7 +351,7 @@ Give me a task, and I'll dive right in!`,
       }
     } catch (error) {
       console.error("Error initializing chat:", error);
-      showCustomToast("Failed to start the conversation", "error");
+      // showCustomToast("Failed to start the conversation", "error");
     } finally {
       setIsThinking(false);
     }
@@ -592,7 +592,7 @@ Give me a task, and I'll dive right in!`,
           style={{ width: `${chatWidth}%` }}
         >
           <div className="flex-1 overflow-y-auto p-6 ">
-               {chatHistory.map((message, index) => (
+          {chatHistory.map((message, index) => (
               <div key={index} className={`mb-4 ${message.isUser ? "text-right" : "text-left"}`}>
                 <div className={`inline-block p-4 rounded-lg ${message.isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"} max-w-[80%]`}>
                   {message.name !== "Admin" && (
@@ -604,20 +604,8 @@ Give me a task, and I'll dive right in!`,
                 </div>
               </div>
             ))}
-          {chatHistory.slice(1).map((message, index) => (
-            <ChatMessage
-              key={index}
-              content={message.content}
-              name={message.name}
-              isUser={message.isUser}
-              onActionClick={handleActionClick}
-              isAudio={false} // Adjust as needed
-              activeTab={activeTab}
-              onViewCode={handleViewCode}
-            />
-          ))}
-          {threadId && !isUserInputRequired && <ThinkingIndicator />}
-          <div ref={chatEndRef} />
+            {threadId && !isUserInputRequired && <ThinkingIndicator />}
+            <div ref={chatEndRef} />
           </div>
           <MLTaskForm onSubmit={handleSubmit} isUserInputRequired={isUserInputRequired} firstTimeQuery={firstTimeQuery} value={inputValue} setInputValue={setInputValue}/>
           {/* <form onSubmit={handleSubmit} className="p-4">
