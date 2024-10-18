@@ -11,6 +11,7 @@ import {
   Loader,
   ChevronLeft,
   ChevronRight,
+  RefreshCw, // Add this import for the reload icon
 } from "lucide-react";
 import { getPrewrittenConversations } from "./GetPrewrittenConversations";
 import "./NewNEO.css";
@@ -658,6 +659,24 @@ Give me a task, and I'll dive right in!`
     setIsModalOpen(false);
   };
 
+  const handleReload = async () => {
+    try {
+      const response = await fetch('https://neov1.monsterapi.ai/backend/terminate', {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        localStorage.removeItem('threadId');
+        window.location.reload();
+      } else {
+        throw new Error('Failed to terminate session');
+      }
+    } catch (error) {
+      console.error("Error terminating session:", error);
+      showCustomToast("Failed to reload. Please try again.", "error");
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#1e1e1e] text-[#cccccc] overflow-hidden">
       <Toaster
@@ -699,8 +718,14 @@ Give me a task, and I'll dive right in!`
             ))}
           </div>
         )}
-        <div className="flex space-x-2 hidden">
-          <img src="/images/neo-vision/btn-navbar.svg" alt="Neo Logo" />
+        <div className="flex space-x-2 me-4">
+          <button
+            onClick={handleReload}
+            className="p-2 rounded-full bg-[#2D2D44] hover:bg-[#3D3D54] transition-colors duration-200"
+            title="Reload"
+          >
+            <RefreshCw size={20} />
+          </button>
         </div>
       </nav>
       <div className="flex flex-1 bg-[#1e1e1e] p-4 overflow-hidden">
@@ -866,7 +891,6 @@ Give me a task, and I'll dive right in!`
         style={{
           content: {
             top: '50%',
-            zIndex:1000,
             left: '50%',
             right: 'auto',
             bottom: 'auto',
