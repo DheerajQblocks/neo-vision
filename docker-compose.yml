@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+    env_file:
+      - .env
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - ./dist:/usr/share/nginx/html
