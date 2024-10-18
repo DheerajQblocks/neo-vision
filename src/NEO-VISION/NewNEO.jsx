@@ -723,7 +723,7 @@ Give me a task, and I'll dive right in!`
                       : "bg-[#252526]"
                   }`}
                   onClick={() => handleTabClick(name)}
-                  disabled={name === "Monitor"}
+                  disabled={name === "Monitor" || name === "File Explorer"}
                   data-tooltip-id={name === "Monitor" || name === "File Explorer" ? "monitor-tooltip" : undefined}
                   data-tooltip-content={name === "Monitor" || name === "File Explorer" ? "Coming soon" : undefined}
                 >
@@ -748,6 +748,7 @@ Give me a task, and I'll dive right in!`
                 <button
                   className="absolute bottom-2 right-2 z-10 bg-[#2d2d44] p-2 rounded-full"
                   onClick={toggleVSCodeFullScreen}
+                  disabled={true}
                 >
                   {isVSCodeFullScreen ? (
                     <Minimize2 size={20} />
