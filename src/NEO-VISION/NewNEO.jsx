@@ -205,7 +205,7 @@ const NewNEO = () => {
         
       if (threadId && isMounted) {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/events/${threadId}`);
+          const response = await fetch(`https://neov1.monsterapi.ai/backend/events/${threadId}`);
           if (response.ok) {
             const events = await response.json();
             if (isMounted) {
@@ -289,7 +289,7 @@ const NewNEO = () => {
     setLastEventIndex(-1);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/init-chat`, {
+      const response = await fetch(`https://neov1.monsterapi.ai/backend/init-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -335,7 +335,7 @@ const NewNEO = () => {
     setIsThinking(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/send-user-input/${threadId}`, {
+      const response = await fetch(`https://neov1.monsterapi.ai/backend/send-user-input/${threadId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -359,7 +359,7 @@ const NewNEO = () => {
     if (!threadId) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/user-input-required/${threadId}`);
+      const response = await fetch(`https://neov1.monsterapi.ai/backend/user-input-required/${threadId}`);
       if (response.ok) {
         const data = await response.json();
         setIsUserInputRequired(data?.user_input_required);
@@ -374,7 +374,7 @@ const NewNEO = () => {
     if (!threadId) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/terminate/${threadId}`, {
+      const response = await fetch(`https://neov1.monsterapi.ai/backend/terminate/${threadId}`, {
         method: 'POST',
       });
 

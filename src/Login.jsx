@@ -11,7 +11,8 @@ function Login() {
     e.preventDefault();
     try {
       setIsLoading(true);
-      const response = await axios.post(`${import.meta.env.VITE_MONSTER_API_URL}/giveaway/direct-login`, {
+      console.log('import.meta.env.VITE_MONSTER_API_URL', import.meta.env.VITE_MONSTER_API_URL)
+      const response = await axios.post(`https://alpha2.monsterapi.ai/backend/giveaway/direct-login`, {
         email: email
       });
       console.log('login response', response?.data)

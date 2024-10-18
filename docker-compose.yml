@@ -1,16 +1,13 @@
-version: '3.8'
-
 services:
   neo-vision:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:80"
-    env_file:
-      - .env
+      - "4173:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d
-      - ./dist:/usr/share/nginx/html
     environment:
       - NODE_ENV=production
+      - VITE_API_URL=https://neov1.monsterapi.ai/backend
+      - VITE_MONSTER_API_URL=https://alpha2.monsterapi.ai/backend
