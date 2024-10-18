@@ -175,7 +175,7 @@ const NewNEO = () => {
   const [isVSCodeFullScreen, setIsVSCodeFullScreen] = useState(false);
   const [isVSCodeActive, setIsVSCodeActive] = useState(false);
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
-  const [threadId, setThreadId] = useState(null);
+  const [threadId, setThreadId] = useState(() => localStorage.getItem('threadId') || null);
   const [lastEventIndex, setLastEventIndex] = useState(-1);
   let [isUserInputRequired, setIsUserInputRequired] = useState(false);
   const [artifactContent, setArtifactContent] = useState(null);
@@ -388,6 +388,7 @@ Give me a task, and I'll dive right in!`
   const initChat = async (message) => {
     const newThreadId = uuidv4();
     setThreadId(newThreadId);
+    localStorage.setItem('threadId', newThreadId);
     setIsThinking(true);
     setLastEventIndex(-1);
 
@@ -409,7 +410,6 @@ Give me a task, and I'll dive right in!`
       }
     } catch (error) {
       console.error("Error initializing chat:", error);
-      // showCustomToast("Failed to start the conversation", "error");
     } finally {
       setIsThinking(false);
     }
@@ -473,6 +473,13 @@ Give me a task, and I'll dive right in!`
     }
   };
 
+  const handleStop = async () => {
+    await terminateThread();
+    localStorage.removeItem('threadId');
+    setThreadId(null);
+    setChatHistory([]);
+  };
+
   const terminateThread = async () => {
     if (!threadId) return;
 
@@ -482,8 +489,6 @@ Give me a task, and I'll dive right in!`
       });
 
       if (response.ok) {
-        setThreadId(null);
-        setChatHistory([]);
         showCustomToast("Conversation ended", "success");
       } else {
         throw new Error('Failed to terminate thread');
@@ -711,27 +716,14 @@ Give me a task, and I'll dive right in!`
             <div ref={chatEndRef} />
           </div>
           
-          <MLTaskForm onSubmit={handleSubmit} isUserInputRequired={isUserInputRequired} firstTimeQuery={firstTimeQuery} value={inputValue} setInputValue={setInputValue}/>
-          {/* <form onSubmit={handleSubmit} className="p-4">
-            <div className="flex items-center bg-[#2D2D44] rounded-full py-1 overflow-hidden">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder={isUserInputRequired || firstTimeQuery === true ? "Provide an ML task" : "Waiting for response..."}
-                className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
-                disabled={!isUserInputRequired && firstTimeQuery === false}
-                ref={inputRef}
-              />
-              <button
-                type="submit"
-                className="bg-[#4A4A6A] rounded-full border-none p-3 mr-1"
-                disabled={!isUserInputRequired && firstTimeQuery === false}
-              >
-                <Send size={20} className="text-white" />
-              </button>
-            </div>
-          </form> */}
+          <MLTaskForm 
+            onSubmit={handleSubmit} 
+            onStop={handleStop}
+            isUserInputRequired={isUserInputRequired} 
+            firstTimeQuery={firstTimeQuery} 
+            value={inputValue} 
+            setInputValue={setInputValue}
+          />
         </div>
 
         <div
