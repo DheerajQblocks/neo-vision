@@ -22,6 +22,7 @@ import FileBrowserCodeViewer from "../artifact/FileBrowserCodeViewer";
 import ArtifactViewer from '../artifact/ArtifactViewer';
 import { v4 as uuidv4 } from 'uuid';
 import MLTaskForm from "./MLTaskForm";
+import { Tooltip } from 'react-tooltip'; // Add this import at the top
 
 const customToastStyle = {
   style: {
@@ -711,7 +712,7 @@ Give me a task, and I'll dive right in!`
             <div className="artifact-section flex justify-center items-center p-1 bg-[#252526] rounded-xl">
               {[
                 { name: "Artifact Viewer", icon: Code },
-                // { name: "Monitor", icon: ChartNoAxesCombined },
+                { name: "Monitor", icon: ChartNoAxesCombined },
                 // { name: "File Explorer", icon: Monitor },
               ].map(({ name, icon: Icon }) => (
                 <button
@@ -722,11 +723,15 @@ Give me a task, and I'll dive right in!`
                       : "bg-[#252526]"
                   }`}
                   onClick={() => handleTabClick(name)}
+                  disabled={name === "Monitor"}
+                  data-tooltip-id={name === "Monitor" ? "monitor-tooltip" : undefined}
+                  data-tooltip-content={name === "Monitor" ? "Coming soon" : undefined}
                 >
                   <Icon size={16} />
                   <span>{name}</span>
                 </button>
               ))}
+              <Tooltip id="monitor-tooltip" />
             </div>
           )}
 
