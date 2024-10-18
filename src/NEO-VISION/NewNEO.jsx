@@ -713,7 +713,7 @@ Give me a task, and I'll dive right in!`
               {[
                 { name: "Artifact Viewer", icon: Code },
                 { name: "Monitor", icon: ChartNoAxesCombined },
-                // { name: "File Explorer", icon: Monitor },
+                { name: "File Explorer", icon: Monitor },
               ].map(({ name, icon: Icon }) => (
                 <button
                   key={name}
@@ -724,8 +724,8 @@ Give me a task, and I'll dive right in!`
                   }`}
                   onClick={() => handleTabClick(name)}
                   disabled={name === "Monitor"}
-                  data-tooltip-id={name === "Monitor" ? "monitor-tooltip" : undefined}
-                  data-tooltip-content={name === "Monitor" ? "Coming soon" : undefined}
+                  data-tooltip-id={name === "Monitor" || name === "File Explorer" ? "monitor-tooltip" : undefined}
+                  data-tooltip-content={name === "Monitor" || name === "File Explorer" ? "Coming soon" : undefined}
                 >
                   <Icon size={16} />
                   <span>{name}</span>
