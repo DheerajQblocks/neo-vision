@@ -637,7 +637,8 @@ Give me a task, and I'll dive right in!`,
         >
           <button
             onClick={toggleArtifactVisibility}
-            className="p-1 bg-[#2D2D44] rounded-full mb-2 transition-transform duration-300 ease-in-out hover:bg-[#3D3D54]"
+            style={{zIndex:1}}
+            className="p-1 bg-[#2D2D44]  rounded-full mb-2 transition-transform duration-300 ease-in-out hover:bg-[#3D3D54]"
           >
             {isArtifactVisible ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
