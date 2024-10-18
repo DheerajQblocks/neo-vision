@@ -16,18 +16,18 @@ const ArtifactViewer = ({ content, type = "code", language = "python" }) => {
 
   if(!content) return (
     <div className="artifact-viewer h-full">
-      <div className="p-4 text-gray-300 justify-center items-center flex h-full"> No artifact found </div>
+      <div className="p-4 text-[#cccccc] justify-center items-center flex h-full bg-[#37373d]"> No artifact found </div>
     </div>
   )
   return (
-    <div className="artifact-viewer">
+    <div className="artifact-viewer bg-[#1e1e1e]">
       {type === "code" ? (
         <div className="code-container">
-          <div className="flex justify-between items-center px-4 py-2 bg-[#2d2d44]">
-            <span className="text-gray-300 text-sm">{language}</span>
+          <div className="flex justify-between items-center px-4 py-2 bg-[#252526]">
+            <span className="text-[#cccccc] text-sm">{language}</span>
             <button
               onClick={handleCopy}
-              className="flex items-center bg-[#3d3d5c] text-gray-300 px-2 py-1 rounded text-sm transition-colors duration-200 hover:bg-[#4d4d7a]"
+              className="flex items-center bg-[#37373d] text-[#cccccc] px-2 py-1 rounded text-sm transition-colors duration-200 hover:bg-[#2d2d30]"
             >
               <FaCopy className="mr-1" />
               {copied ? "Copied!" : "Copy"}

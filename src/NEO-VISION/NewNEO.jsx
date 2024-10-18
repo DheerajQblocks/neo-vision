@@ -25,15 +25,15 @@ import MLTaskForm from "./MLTaskForm";
 
 const customToastStyle = {
   style: {
-    background: '#181729',
-    color: '#fff',
-    border: '1px solid #4334E6',
+    background: '#1e1e1e', // Updated to VS Code dark background
+    color: '#cccccc', // Updated to VS Code text color
+    border: '1px solid #007acc', // Updated to VS Code blue
     padding: '16px',
     borderRadius: '8px',
   },
   iconTheme: {
-    primary: '#4334E6',
-    secondary: '#fff',
+    primary: '#007acc', // Updated to VS Code blue
+    secondary: '#cccccc', // Updated to VS Code text color
   },
 };
 
@@ -98,14 +98,15 @@ const ChatMessage = ({ content, name, isUser, onActionClick, isAudio, activeTab,
     <div className={`mb-4 ${isUser ? "text-right" : "text-left"}`}>
       <div
         className={`inline-block p-4 rounded-lg ${
-          isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"
+          isUser ? "bg-[#2d2d2d]" : "bg-[#2d2d2d]" // Updated to VS Code darker gray
         } max-w-[80%]`}
       >
-{name !== "Admin" && (
-  <div className="inline-block bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold py-1 px-3 rounded-full shadow-md mb-2">
-    @{name}
-  </div>
-)}        {renderContent()}
+        {name !== "Admin" && (
+          <div className="inline-block bg-[#007acc] text-[#cccccc] text-sm font-semibold py-1 px-3 rounded-full shadow-md mb-2">
+            @{name}
+          </div>
+        )}
+        {renderContent()}
       </div>
     </div>
   );
@@ -595,7 +596,7 @@ Give me a task, and I'll dive right in!`
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#14141f] text-white overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#1e1e1e] text-[#cccccc] overflow-hidden">
       <Toaster
         position="top-center"
         toastOptions={{
@@ -603,7 +604,7 @@ Give me a task, and I'll dive right in!`
           style: customToastStyle.style,
         }}
       />
-      <nav className="bg-[#1A162F] p-1 flex items-center justify-between">
+      <nav className="bg-[#252526] p-1 flex items-center justify-between">
         <div className="flex items-center ms-4">
           <img
             src="/images/neo-vision/monster-logo.png"
@@ -638,9 +639,9 @@ Give me a task, and I'll dive right in!`
           <img src="/images/neo-vision/btn-navbar.svg" alt="Neo Logo" />
         </div>
       </nav>
-      <div className="flex flex-1 bg-[#0C0A1F] p-4 overflow-hidden">
+      <div className="flex flex-1 bg-[#1e1e1e] p-4 overflow-hidden">
         <div
-          className="flex flex-col bg-[#181729] rounded-xl custom-scrollbar transition-all duration-300 ease-in-out"
+          className="flex flex-col bg-[#252526] rounded-xl custom-scrollbar transition-all duration-300 ease-in-out"
           style={{ width: `${chatWidth}%` }}
         >
           <div className="flex-1 overflow-y-auto p-6 ">
@@ -707,7 +708,7 @@ Give me a task, and I'll dive right in!`
           }}
         >
           {!isVSCodeActive && (
-            <div className="artifact-section flex justify-center items-center p-1 bg-[#181729] rounded-xl">
+            <div className="artifact-section flex justify-center items-center p-1 bg-[#252526] rounded-xl">
               {[
                 { name: "Artifact Viewer", icon: Code },
                 // { name: "Monitor", icon: ChartNoAxesCombined },
@@ -717,8 +718,8 @@ Give me a task, and I'll dive right in!`
                   key={name}
                   className={`px-6 py-4 w-full border-none flex items-center justify-center space-x-1 ${
                     activeTab === name
-                      ? "bg-[#2d2d44] shadow-xl rounded-xl"
-                      : "bg-[#181729]"
+                      ? "bg-[#37373d] shadow-xl rounded-xl"
+                      : "bg-[#252526]"
                   }`}
                   onClick={() => handleTabClick(name)}
                 >
@@ -729,7 +730,7 @@ Give me a task, and I'll dive right in!`
             </div>
           )}
 
-          <div className={`bg-[#141324] ${activeTab === "File Explorer" ? "h-full" : "mt-4 h-[calc(100%-4rem)]"} overflow-auto rounded-xl relative`}>
+          <div className={`bg-[#1e1e1e] ${activeTab === "File Explorer" ? "h-full" : "mt-4 h-[calc(100%-4rem)]"} overflow-auto rounded-xl relative`}>
             {activeTab === "Artifact Viewer" && (
               <ArtifactViewer
                 content={artifactContent?.content}
