@@ -36,7 +36,7 @@ const customToastStyle = {
   },
 };
 
-const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab, onViewCode }) => {
+const ChatMessage = ({ content, name, isUser, onActionClick, isAudio, activeTab, onViewCode }) => {
   const renderContent = () => {
     if (typeof content === "string") {
       const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
@@ -100,7 +100,11 @@ const ChatMessage = ({ content, isUser, onActionClick, isAudio, activeTab, onVie
           isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"
         } max-w-[80%]`}
       >
-        {renderContent()}
+{name !== "Admin" && (
+  <div className="inline-block bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold py-1 px-3 rounded-full shadow-md mb-2">
+    @{name}
+  </div>
+)}        {renderContent()}
       </div>
     </div>
   );
@@ -550,6 +554,7 @@ const NewNEO = () => {
             {chatHistory.map((message, index) => (
               <ChatMessage
                 key={index}
+                name = {message?.name}
                 content={message.content}
                 isUser={message.isUser}
                 isAudio={message?.isAudio}
@@ -567,7 +572,7 @@ const NewNEO = () => {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder={isUserInputRequired || firstTimeQuery === true ? "Write prompt" : "Waiting for response..."}
+                placeholder={isUserInputRequired || firstTimeQuery === true ? "Provide an ML task" : "Waiting for response..."}
                 className="flex-1 bg-transparent border-none text-white py-3 px-6 mx-2 focus:outline-none rounded-xl"
                 disabled={!isUserInputRequired && firstTimeQuery === false}
                 ref={inputRef}
