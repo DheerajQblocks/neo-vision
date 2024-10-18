@@ -100,7 +100,7 @@ const ChatMessage = ({ content, name, isUser, onActionClick, isAudio, activeTab,
   return (
     <div className={`mb-4 ${isUser ? "text-right" : "text-left"}`}>
       <div
-        className={`inline-block p-4 rounded-lg ${
+        className={`inline-block p-4 rounded-lg break-words	 ${
           isUser ? "bg-[#2d2d2d]" : "bg-[#2d2d2d]" // Updated to VS Code darker gray
         } max-w-[80%]`}
       >
