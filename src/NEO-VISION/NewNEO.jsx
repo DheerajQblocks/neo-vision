@@ -195,8 +195,8 @@ const NewNEO = () => {
 Here's what I can do:\n\n`,
       tasks: [
         {
-          display: "Train a model for movie recommendations.",
-          detailed: "Train a model for movie recommendations."
+          display: "Train a model for movie recommendation system. Use Movielens dataset.",
+          detailed: "Train a model for movie recommendation system. Use Movielens dataset."
         },
         {
           display: "Build a dog breed classification model.",
