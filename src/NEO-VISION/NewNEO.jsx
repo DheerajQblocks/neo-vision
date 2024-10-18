@@ -686,7 +686,7 @@ Give me a task, and I'll dive right in!`
     if (storedThreadId) {
       setThreadId(storedThreadId);
       fetchEventsAndUpdateChat(storedThreadId);
-      setIsModalOpen(true);
+      
     }
   }, []);
 
@@ -696,6 +696,7 @@ Give me a task, and I'll dive right in!`
       if (response.ok) {
         const data = await response.json();
         updateChatHistory(data.events);
+        setIsModalOpen(true);
       } else {
         const errorData = await response.json();
         if (errorData.detail === "Thread not found") {
