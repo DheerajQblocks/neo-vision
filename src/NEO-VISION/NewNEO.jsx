@@ -658,9 +658,21 @@ Give me a task, and I'll dive right in!`
                 </div>
               </div>
             ))}
+              {chatHistory.slice(1).map((message, index) => (
+              <ChatMessage
+                key={index}
+                content={message.content}
+                isUser={message.isUser}
+                isAudio={message?.isAudio}
+                onActionClick={handleActionClick}
+                activeTab={activeTab}
+                onViewCode={handleViewCode}
+              />
+            ))}
             {threadId && !isUserInputRequired && <ThinkingIndicator />}
             <div ref={chatEndRef} />
           </div>
+          
           <MLTaskForm onSubmit={handleSubmit} isUserInputRequired={isUserInputRequired} firstTimeQuery={firstTimeQuery} value={inputValue} setInputValue={setInputValue}/>
           {/* <form onSubmit={handleSubmit} className="p-4">
             <div className="flex items-center bg-[#2D2D44] rounded-full py-1 overflow-hidden">
