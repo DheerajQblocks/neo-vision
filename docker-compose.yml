@@ -1,11 +1,14 @@
+version: '3.8'
+
 services:
   neo-vision:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "4173:4173"
+      - "80:80"
     volumes:
-      - .:/app
-      - /app/node_modules
-    env_file:
-      - .env
-    command: sh -c "npm run build && npm run preview -- --host 0.0.0.0 --port 4173"
+      - ./nginx:/etc/nginx/conf.d
+      - ./dist:/usr/share/nginx/html
+    environment:
+      - NODE_ENV=production

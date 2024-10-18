@@ -1,23 +1,14 @@
-# Use an official Node runtime as the base image
-FROM node:20-alpine
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy package.json and package-lock.json
+# Build stage
+FROM node:20-alpine3.20 as build
+WORKDIR /usr/src/app
 COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application code
+RUN npm ci
 COPY . .
-
-# Build the app
 RUN npm run build
 
-# Expose the port the app runs on
-EXPOSE 4173
-
-# Serve the app
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4173"]
+# Production stage
+FROM nginx:stable-alpine as production
+COPY --from=build /usr/src/app/nginx /etc/nginx/conf.d
+COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
