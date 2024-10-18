@@ -181,16 +181,16 @@ const NewNEO = () => {
   
   const welcomeMessage = {
     content: {
-      text: `Greetings, human! I'm Neo, your friendly neighborhood ML engineer. 🚀
+      text: `Greetings, human!\nI’m Neo, your friendly neighborhood ML engineer. 🚀
 
-Here's what I can do:`,
+Here's what I can do:\n\n`,
       tasks: [
         {
-          display: "Train a model to recommend your next favorite movie.",
-          detailed: "Train a model to recommend your next favorite movie."
+          display: "Train a model for movie recommendations.",
+          detailed: "Train a model for movie recommendations."
         },
         {
-          display: "Build a smart dog breed classifier.",
+          display: "Build a dog breed classification model.",
           detailed: `Given a dataset of images of dogs, predict the breed of each image.
 
 # Metric
@@ -224,8 +224,8 @@ kaggle competitions download -c dog-breed-identification
 Assume that the Kaggle CLI is already installed and ready to use.`
         },
         {
-          display: "Set up a chat moderation pipeline using GPT-4.",
-          detailed: "Set up a chat moderation pipeline using GPT-4."
+          display: "Set up a chat moderation pipeline using GPT-4o.",
+          detailed: "Set up a chat moderation pipeline using GPT-4o."
         }
       ],
       footer: `I'm always learning, so I might run into a few errors (don't worry, I'll fix them!). If needed, I may ask for your guidance as well.
@@ -304,8 +304,9 @@ Give me a task, and I'll dive right in!`
           const response = await fetch(`https://neov1.monsterapi.ai/backend/events/${threadId}`);
           if (response.ok) {
             const events = await response.json();
+            console.log("events", events)
             if (isMounted) {
-              updateChatHistory(events);
+              updateChatHistory(events?.events);
            
               // else if (firstTimeQuery === false){
               //   setFirstTimeQuery(false);
