@@ -25,6 +25,7 @@ import MLTaskForm from "./MLTaskForm";
 import { Tooltip } from 'react-tooltip'; // Add this import at the top
 import  Terminal  from 'react-terminal-ui';
 import { useInterval } from 'react-use';
+import Modal from 'react-modal'; // Make sure to install this package
 
 const customToastStyle = {
   style: {
@@ -184,6 +185,7 @@ const NewNEO = () => {
   const [terminalLines, setTerminalLines] = useState([]);
   const terminalRef = useRef(null);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const welcomeMessage = {
     content: {
@@ -637,6 +639,25 @@ Give me a task, and I'll dive right in!`
     }
   };
 
+  useEffect(() => {
+    const storedThreadId = localStorage.getItem('threadId');
+    if (storedThreadId) {
+      setIsModalOpen(true);
+    }
+  }, []);
+
+  const handleContinueSession = () => {
+    setThreadId(localStorage.getItem('threadId'));
+    setIsModalOpen(false);
+  };
+
+  const handleNewSession = () => {
+    localStorage.removeItem('threadId');
+    window.location.reload();
+    setThreadId(null);
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#1e1e1e] text-[#cccccc] overflow-hidden">
       <Toaster
@@ -734,7 +755,7 @@ Give me a task, and I'll dive right in!`
           <button
             onClick={toggleArtifactVisibility}
             style={{zIndex:1}}
-            className="p-1 bg-[#2D2D44]  rounded-full mb-2 transition-transform duration-300 ease-in-out hover:bg-[#3D3D54]"
+            className={`p-1 bg-[#2D2D44]  rounded-full ${isModalOpen ? "hidden" : ""} transition-transform duration-300 ease-in-out hover:bg-[#3D3D54]`}
           >
             {isArtifactVisible ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
@@ -838,6 +859,48 @@ Give me a task, and I'll dive right in!`
           </div>
         </div>
       </div>
+      
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => {}} // Empty function to prevent closing
+        style={{
+          content: {
+            top: '50%',
+            zIndex:1000,
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#252526',
+            border: '1px solid #007acc',
+            borderRadius: '8px',
+            padding: '20px',
+            color: '#cccccc',
+          },
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.75)'
+          }
+        }}
+        contentLabel="Session Modal"
+      >
+        <h2 className="text-xl mb-4">Existing Session Found</h2>
+        <p className="mb-4">Do you want to continue the existing session or start a new one?</p>
+        <div className="flex justify-center space-x-4">
+          <button
+            onClick={handleContinueSession}
+            className="px-4 py-2 bg-[#007acc] text-white rounded hover:bg-[#005999]"
+          >
+            Continue Session
+          </button>
+          <button
+            onClick={handleNewSession}
+            className="px-4 py-2 bg-[#4A4A6A] text-white rounded hover:bg-[#3A3A5A]"
+          >
+            New Session
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };
