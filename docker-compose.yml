@@ -8,6 +8,6 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://neov1backend.monsterapi.ai/backend
-      - VITE_MONSTER_API_URL=http://alpha2.monsterapi.ai/backend
+      - VITE_API_URL=https://neov1.monsterapi.ai/backend
+      - VITE_MONSTER_API_URL=https://alpha2.monsterapi.ai/backend
     command: npm run dev -- --host 0.0.0.0
