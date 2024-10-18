@@ -21,6 +21,7 @@ import TerminalCustome from "../artifact/TerminalCustome";
 import FileBrowserCodeViewer from "../artifact/FileBrowserCodeViewer";
 import ArtifactViewer from '../artifact/ArtifactViewer';
 import { v4 as uuidv4 } from 'uuid';
+import MLTaskForm from "./MLTaskForm";
 
 const customToastStyle = {
   style: {
@@ -566,7 +567,8 @@ const NewNEO = () => {
             {threadId && !isUserInputRequired && <ThinkingIndicator />}
             <div ref={chatEndRef} />
           </div>
-          <form onSubmit={handleSubmit} className="p-4">
+          <MLTaskForm onSubmit={handleSubmit} isUserInputRequired={isUserInputRequired} firstTimeQuery={firstTimeQuery} value={inputValue} setInputValue={setInputValue}/>
+          {/* <form onSubmit={handleSubmit} className="p-4">
             <div className="flex items-center bg-[#2D2D44] rounded-full py-1 overflow-hidden">
               <input
                 type="text"
@@ -585,7 +587,7 @@ const NewNEO = () => {
                 <Send size={20} className="text-white" />
               </button>
             </div>
-          </form>
+          </form> */}
         </div>
 
         <div
