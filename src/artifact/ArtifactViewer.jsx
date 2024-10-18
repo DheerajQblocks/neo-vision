@@ -5,6 +5,7 @@ import { FaCopy } from "react-icons/fa6";
 import "./ArtifactViewer.css";
 
 const ArtifactViewer = ({ content, type = "code", language = "python" }) => {
+
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = () => {
@@ -14,8 +15,8 @@ const ArtifactViewer = ({ content, type = "code", language = "python" }) => {
   };
 
   if(!content) return (
-    <div className="artifact-viewer">
-      <div className="p-4"> No artifact found </div>
+    <div className="artifact-viewer h-full">
+      <div className="p-4 text-gray-300 justify-center items-center flex h-full"> No artifact found </div>
     </div>
   )
   return (

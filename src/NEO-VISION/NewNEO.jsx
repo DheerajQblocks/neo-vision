@@ -729,11 +729,11 @@ Give me a task, and I'll dive right in!`
           )}
 
           <div className={`bg-[#141324] ${activeTab === "File Explorer" ? "h-full" : "mt-4 h-[calc(100%-4rem)]"} overflow-auto rounded-xl relative`}>
-            {activeTab === "Artifact Viewer" && artifactContent && (
+            {activeTab === "Artifact Viewer" && (
               <ArtifactViewer
-                content={artifactContent.content}
-                type={artifactContent.type}
-                language={artifactContent.language}
+                content={artifactContent?.content}
+                type={artifactContent?.type}
+                language={artifactContent?.language}
               />
             )}
             {activeTab === "File Explorer" && (
