@@ -838,7 +838,7 @@ Give me a task, and I'll dive right in!`
                   }}
                 >
                   {terminalLines.map((line, index) => (
-                    <div key={index}>{line}</div>
+                    <div className="text-sm" key={index}>{line}</div>
                   ))}
                 </Terminal>
               </div>
