@@ -593,19 +593,19 @@ Give me a task, and I'll dive right in!`,
         >
           <div className="flex-1 overflow-y-auto p-6 ">
           {chatHistory.map((message, index) => (
-              <div key={index} className={`mb-4 ${message.isUser ? "text-right" : "text-left"}`}>
-                <div className={`inline-block p-4 rounded-lg ${message.isUser ? "bg-[#2d2d44]" : "bg-[#2d2d44]"} max-w-[80%]`}>
-                  {message.name !== "Admin" && (
-                    <div className="inline-block bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold py-1 px-3 rounded-full shadow-md mb-2">
-                      @{message.name}
-                    </div>
-                  )}
-                  {renderMessageContent(message.content)}
-                </div>
-              </div>
-            ))}
-            {threadId && !isUserInputRequired && <ThinkingIndicator />}
-            <div ref={chatEndRef} />
+            <ChatMessage
+              key={index}
+              content={message.content}
+              name={message.name}
+              isUser={message.isUser}
+              onActionClick={handleActionClick}
+              isAudio={false} // Adjust as needed
+              activeTab={activeTab}
+              onViewCode={handleViewCode}
+            />
+          ))}
+          {threadId && !isUserInputRequired && <ThinkingIndicator />}
+          <div ref={chatEndRef} />
           </div>
           <MLTaskForm onSubmit={handleSubmit} isUserInputRequired={isUserInputRequired} firstTimeQuery={firstTimeQuery} value={inputValue} setInputValue={setInputValue}/>
           {/* <form onSubmit={handleSubmit} className="p-4">
